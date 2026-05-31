@@ -1,0 +1,54 @@
+name: Release Plugin
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify tag matches plugin version
+        shell: bash
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          grep -q "Version:           ${VERSION}" tnstack-toolkit.php
+          grep -q "define('TNSTACK_TOOLKIT_VERSION', '${VERSION}');" tnstack-toolkit.php
+          grep -q "Stable tag: ${VERSION}" readme.txt
+
+      - name: Lint frontend
+        run: npm run lint
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Package plugin
+        shell: bash
+        run: |
+          mkdir -p release/tnstack-toolkit
+          cp -R build includes languages release/tnstack-toolkit/
+          cp LICENSE readme.txt tnstack-toolkit.php uninstall.php release/tnstack-toolkit/
+          cd release
+          zip -r tnstack-toolkit.zip tnstack-toolkit
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${GITHUB_REF_NAME}" release/tnstack-toolkit.zip --generate-notes --title "${GITHUB_REF_NAME}"
