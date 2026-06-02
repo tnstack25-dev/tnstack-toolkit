@@ -1,0 +1,29 @@
+#tnstack-toolkit-root .tk-settings-card {
+  max-width: 680px;
+  padding: 22px;
+}
+#tnstack-toolkit-root .tk-settings-card > p {
+  margin: 5px 0 20px;
+  color: var(--muted);
+}
+#tnstack-toolkit-root .tk-settings-card label {
+  color: #dce7f7;
+}
+#tnstack-toolkit-root .tk-settings-card input[type="text"] {
+  color: #ecf4ff;
+  border-color: #2b405d;
+  background: #0a1728;
+}
+#tnstack-toolkit-root .tk-form-notice {
+  margin: 0 0 16px;
+  padding: 10px;
+  border-radius: 4px;
+}
+#tnstack-toolkit-root .tk-form-notice.success {
+  color: #7ce3ae;
+  background: rgba(40, 212, 134, 0.12);
+}
+#tnstack-toolkit-root .tk-form-notice.error {
+  color: #ff969a;
+  background: rgba(255, 92, 98, 0.12);
+}

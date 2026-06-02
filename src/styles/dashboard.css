@@ -1,0 +1,381 @@
+#tnstack-toolkit-root .tk-overview {
+  display: grid;
+  grid-template-columns: 1fr 258px;
+  gap: 11px;
+  margin-bottom: 13px;
+}
+#tnstack-toolkit-root .tk-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 11px;
+}
+#tnstack-toolkit-root .tk-metric {
+  display: flex;
+  justify-content: space-between;
+  min-height: 118px;
+  padding: 16px;
+}
+#tnstack-toolkit-root .tk-metric strong {
+  display: block;
+  margin: 3px 0 6px;
+  color: #fff;
+  font-size: 27px;
+}
+#tnstack-toolkit-root .tk-metric span {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+}
+#tnstack-toolkit-root .tk-metric small {
+  color: #a0b1c7;
+}
+#tnstack-toolkit-root .tk-accent {
+  font-weight: 600;
+}
+#tnstack-toolkit-root .blue {
+  color: var(--blue) !important;
+}
+#tnstack-toolkit-root .green {
+  color: var(--green) !important;
+}
+#tnstack-toolkit-root .yellow {
+  color: var(--yellow) !important;
+}
+#tnstack-toolkit-root .red {
+  color: var(--red) !important;
+}
+#tnstack-toolkit-root .purple {
+  color: var(--purple) !important;
+}
+#tnstack-toolkit-root .tk-metric-icon {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  margin-top: 14px;
+  border-radius: 50%;
+  place-items: center;
+  background: rgba(35, 129, 255, 0.26);
+}
+#tnstack-toolkit-root .tk-metric-icon.green {
+  background: rgba(40, 212, 134, 0.2);
+}
+#tnstack-toolkit-root .tk-metric-icon.yellow {
+  background: rgba(248, 174, 36, 0.22);
+}
+#tnstack-toolkit-root .tk-metric-icon.purple {
+  background: rgba(177, 92, 255, 0.22);
+}
+#tnstack-toolkit-root .tk-overview-side {
+  display: grid;
+  grid-template-rows: 38px 1fr;
+  gap: 9px;
+}
+#tnstack-toolkit-root .tk-date-filter {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding-left: 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: #becbdd;
+  font-size: 10px;
+  background: rgba(15, 29, 47, 0.95);
+}
+#tnstack-toolkit-root .tk-date-filter span {
+  flex: 1;
+}
+#tnstack-toolkit-root .tk-date-filter > .tk-icon {
+  transform: rotate(180deg);
+}
+#tnstack-toolkit-root .tk-date-filter button {
+  display: grid;
+  height: 100%;
+  padding: 0 10px;
+  border: 0;
+  border-left: 1px solid var(--line);
+  color: #a9b8cd;
+  place-items: center;
+  background: rgba(20, 38, 61, 0.85);
+  cursor: pointer;
+}
+#tnstack-toolkit-root .tk-compact-ssl {
+  display: flex;
+  justify-content: space-between;
+  min-height: 71px;
+  padding: 11px 14px;
+}
+#tnstack-toolkit-root .tk-compact-ssl strong {
+  display: block;
+  color: #fff;
+  font-size: 22px;
+  line-height: 1.1;
+}
+#tnstack-toolkit-root .tk-compact-ssl span {
+  color: var(--muted);
+  font-size: 9px;
+}
+#tnstack-toolkit-root .tk-compact-ssl .tk-metric-icon {
+  width: 42px;
+  height: 42px;
+  margin-top: 2px;
+}
+#tnstack-toolkit-root .tk-grid-main {
+  display: grid;
+  grid-template-columns: 1.03fr 1.25fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+#tnstack-toolkit-root .tk-grid-bottom {
+  display: grid;
+  grid-template-columns: 0.9fr 1.08fr 1.2fr;
+  gap: 12px;
+}
+#tnstack-toolkit-root .tk-panel {
+  min-width: 0;
+  padding: 13px;
+}
+#tnstack-toolkit-root .tk-panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+#tnstack-toolkit-root .tk-panel-head button {
+  padding: 6px 9px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  color: #c7d4e6;
+  font-size: 10px;
+  background: #13243a;
+  cursor: pointer;
+}
+#tnstack-toolkit-root .tk-chart-wrap {
+  position: relative;
+  padding: 12px 0 0 30px;
+}
+#tnstack-toolkit-root .tk-chart {
+  width: 100%;
+  height: 197px;
+  overflow: visible;
+}
+#tnstack-toolkit-root .tk-grid {
+  stroke: rgba(144, 168, 202, 0.14);
+  stroke-dasharray: 4;
+}
+#tnstack-toolkit-root .tk-area {
+  fill: url(#uptime-fill);
+}
+#tnstack-toolkit-root .tk-line {
+  fill: none;
+  stroke: #2888ff;
+  stroke-width: 2;
+}
+#tnstack-toolkit-root .tk-chart-labels {
+  display: flex;
+  justify-content: space-between;
+  color: #8090a9;
+  font-size: 9px;
+}
+#tnstack-toolkit-root .tk-tooltip {
+  position: absolute;
+  top: 70px;
+  right: 34px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: #0a1524;
+}
+#tnstack-toolkit-root .tk-tooltip b {
+  display: block;
+  margin-top: 4px;
+  color: #eef5ff;
+  font-size: 10px;
+}
+#tnstack-toolkit-root .tk-tooltip i {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--blue);
+}
+#tnstack-toolkit-root table {
+  width: 100%;
+  border-collapse: collapse;
+  color: #c6d2e3;
+  font-size: 10px;
+}
+#tnstack-toolkit-root th {
+  padding: 0 5px 7px;
+  color: #7f90a8;
+  font-size: 8px;
+  font-weight: 600;
+  text-align: left;
+  text-transform: uppercase;
+}
+#tnstack-toolkit-root td {
+  padding: 8px 5px;
+  border-top: 1px solid var(--line);
+  vertical-align: middle;
+}
+#tnstack-toolkit-root td:first-child {
+  display: grid;
+  grid-template-columns: 23px 1fr;
+  column-gap: 7px;
+}
+#tnstack-toolkit-root td:first-child small {
+  grid-column: 2;
+}
+#tnstack-toolkit-root em {
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+  color: inherit;
+  font-size: 10px;
+  font-style: normal;
+  white-space: nowrap;
+}
+#tnstack-toolkit-root .tk-site-icon {
+  display: grid;
+  grid-row: span 2;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  color: #fff !important;
+  font-size: 10px;
+  font-style: normal;
+  place-items: center;
+  background: #267cf0;
+}
+#tnstack-toolkit-root .tk-site-icon.red {
+  background: #e65461;
+}
+#tnstack-toolkit-root .tk-count {
+  margin-left: 5px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  color: #ff7f84;
+  font-size: 10px;
+  background: rgba(255, 92, 98, 0.15);
+}
+#tnstack-toolkit-root .tk-ssl-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 12px 0 6px;
+}
+#tnstack-toolkit-root .tk-ssl-row span {
+  min-width: 0;
+  flex: 1;
+}
+#tnstack-toolkit-root .tk-ssl-row strong {
+  color: #b7c5d8;
+  font-size: 9px;
+  text-align: right;
+}
+#tnstack-toolkit-root .tk-ssl-row strong em {
+  display: block;
+  color: var(--yellow);
+  font-size: 11px;
+  font-weight: 700;
+}
+#tnstack-toolkit-root .tk-progress {
+  height: 3px;
+  margin-left: 30px;
+  border-radius: 4px;
+  background: #20344d;
+}
+#tnstack-toolkit-root .tk-progress i {
+  display: block;
+  width: 56%;
+  height: 100%;
+  background: linear-gradient(90deg, #2193f0, #f0ac32);
+}
+#tnstack-toolkit-root .tk-progress.red i {
+  width: 75%;
+  background: var(--red);
+}
+#tnstack-toolkit-root .tk-malware-main {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding: 18px 3px 22px;
+}
+#tnstack-toolkit-root .tk-shield {
+  display: grid;
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  color: var(--green);
+  place-items: center;
+  background: rgba(40, 212, 134, 0.13);
+}
+#tnstack-toolkit-root .tk-malware-main b {
+  display: block;
+  margin-bottom: 6px;
+  color: #ecf4ff;
+}
+#tnstack-toolkit-root .tk-malware-main small {
+  margin-top: 3px;
+}
+#tnstack-toolkit-root .tk-malware-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid var(--line);
+}
+#tnstack-toolkit-root .tk-malware-stats span {
+  padding: 10px 4px 0;
+  border-right: 1px solid var(--line);
+  text-align: center;
+}
+#tnstack-toolkit-root .tk-malware-stats span:last-child {
+  border: 0;
+}
+#tnstack-toolkit-root .tk-malware-stats b {
+  display: block;
+  font-size: 18px;
+}
+#tnstack-toolkit-root .tk-logs > div {
+  display: grid;
+  grid-template-columns: 58px 1fr 82px 50px;
+  gap: 6px;
+  align-items: center;
+  padding: 7px 0;
+  border-top: 1px solid var(--line);
+  font-size: 9px;
+}
+#tnstack-toolkit-root .tk-logs b {
+  padding: 3px 4px;
+  border-radius: 3px;
+  font-size: 8px;
+  text-align: center;
+  background: rgba(255, 92, 98, 0.14);
+}
+#tnstack-toolkit-root .tk-logs b.yellow {
+  background: rgba(248, 174, 36, 0.15);
+}
+#tnstack-toolkit-root .tk-logs b.blue {
+  background: rgba(35, 129, 255, 0.16);
+}
+#tnstack-toolkit-root .tk-logs time,
+#tnstack-toolkit-root .tk-logs small {
+  color: #8393a9;
+  font-size: 9px;
+}
+
+#tnstack-toolkit-root .tk-system-footer {
+  display: flex;
+  gap: 38px;
+  align-items: center;
+  margin-top: 13px;
+  padding: 12px 15px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  color: #8393aa;
+  font-size: 9px;
+  background: rgba(12, 25, 41, 0.82);
+}
+#tnstack-toolkit-root .tk-system-footer small {
+  margin-left: auto;
+  font-size: 9px;
+}
+

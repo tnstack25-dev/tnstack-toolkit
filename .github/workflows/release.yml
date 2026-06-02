@@ -48,6 +48,13 @@ jobs:
           cd release
           zip -r tnstack-toolkit.zip tnstack-toolkit
 
+      - name: Verify installable package
+        shell: bash
+        run: |
+          unzip -l release/tnstack-toolkit.zip
+          unzip -p release/tnstack-toolkit.zip tnstack-toolkit/tnstack-toolkit.php | grep -q "Version:           ${GITHUB_REF_NAME#v}"
+          test "$(unzip -Z1 release/tnstack-toolkit.zip | head -n 1)" = "tnstack-toolkit/"
+
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
