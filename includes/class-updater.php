@@ -29,7 +29,7 @@ final class Updater
 
   public function check_for_update($update, $plugin_data, $plugin_file, $locales)
   {
-    unset($plugin_data, $locales);
+    unset($locales);
 
     if ($plugin_file !== plugin_basename(TNSTACK_TOOLKIT_FILE)) {
       return $update;
@@ -41,12 +41,19 @@ final class Updater
       return false;
     }
 
+    $installed_version = (string) ($plugin_data['Version'] ?? TNSTACK_TOOLKIT_VERSION);
+
+    if (version_compare($release['version'], $installed_version, '<=')) {
+      return false;
+    }
+
     return [
       'id'           => self::UPDATE_URI,
       'slug'         => self::SLUG,
       'version'      => $release['version'],
       'url'          => self::REPOSITORY_URL,
       'package'      => $release['package'],
+      'requires'     => '6.6',
       'requires_php' => '8.0',
     ];
   }

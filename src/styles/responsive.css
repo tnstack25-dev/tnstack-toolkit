@@ -1,0 +1,69 @@
+@media (max-width: 1200px) {
+  #tnstack-toolkit-root .tk-overview {
+    grid-template-columns: 1fr;
+  }
+  #tnstack-toolkit-root .tk-overview-side {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto;
+  }
+  #tnstack-toolkit-root .tk-metrics {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  #tnstack-toolkit-root .tk-grid-main,
+  #tnstack-toolkit-root .tk-grid-bottom {
+    grid-template-columns: 1fr;
+  }
+  #tnstack-toolkit-root .tk-system-footer {
+    flex-wrap: wrap;
+    gap: 14px 25px;
+  }
+  #tnstack-toolkit-root .tk-system-footer small {
+    width: 100%;
+    margin-left: 0;
+  }
+}
+@media (max-width: 782px) {
+  #tnstack-toolkit-root {
+    --wp-admin-bar-height: 46px;
+  }
+  .toplevel_page_tnstack-toolkit #wpcontent {
+    padding-left: 0;
+  }
+  #tnstack-toolkit-root .tk-app {
+    margin-left: 0;
+  }
+  #tnstack-toolkit-root .tk-sidebar {
+    flex-basis: 58px;
+    padding: 12px 7px;
+  }
+  #tnstack-toolkit-root .tk-sidebar span,
+  #tnstack-toolkit-root .tk-upgrade,
+  #tnstack-toolkit-root .tk-sidebar footer {
+    display: none;
+  }
+  #tnstack-toolkit-root nav a {
+    justify-content: center;
+    padding: 11px;
+  }
+  #tnstack-toolkit-root .tk-brand {
+    padding-inline: 6px;
+  }
+  #tnstack-toolkit-root .tk-header-actions > .tk-icon,
+  #tnstack-toolkit-root .tk-notification {
+    display: none;
+  }
+  #tnstack-toolkit-root main {
+    padding: 15px 10px;
+  }
+  #tnstack-toolkit-root .tk-page-header {
+    top: -15px;
+    margin: -15px -10px 15px;
+    padding: 15px 10px 12px;
+  }
+  #tnstack-toolkit-root .tk-overview-side {
+    grid-template-columns: 1fr;
+  }
+  #tnstack-toolkit-root .tk-metrics {
+    grid-template-columns: 1fr;
+  }
+}

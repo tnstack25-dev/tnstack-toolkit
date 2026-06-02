@@ -1,11 +1,63 @@
 {
   "index.html": {
-    "file": "assets/main-BSVSWhA9.js",
+    "file": "assets/main-DGQj7Cuh.js",
     "name": "main",
     "src": "index.html",
     "isEntry": true,
+    "dynamicImports": [
+      "src/pages/DashboardPage.tsx",
+      "src/pages/NotFoundPage.tsx",
+      "src/pages/PlaceholderPage.tsx",
+      "src/pages/RouteErrorPage.tsx",
+      "src/features/settings/SettingsPage.tsx"
+    ],
     "css": [
-      "assets/main-B2UrM0oT.css"
+      "assets/main-Ccim0Gpo.css"
+    ]
+  },
+  "src/features/settings/SettingsPage.tsx": {
+    "file": "assets/SettingsPage-Bpvtb7N5.js",
+    "name": "SettingsPage",
+    "src": "src/features/settings/SettingsPage.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "index.html"
+    ]
+  },
+  "src/pages/DashboardPage.tsx": {
+    "file": "assets/DashboardPage-7i4PT8ZZ.js",
+    "name": "DashboardPage",
+    "src": "src/pages/DashboardPage.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "index.html"
+    ]
+  },
+  "src/pages/NotFoundPage.tsx": {
+    "file": "assets/NotFoundPage-Dl2sbf_N.js",
+    "name": "NotFoundPage",
+    "src": "src/pages/NotFoundPage.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "index.html"
+    ]
+  },
+  "src/pages/PlaceholderPage.tsx": {
+    "file": "assets/PlaceholderPage-DoUKzQ3J.js",
+    "name": "PlaceholderPage",
+    "src": "src/pages/PlaceholderPage.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "index.html"
+    ]
+  },
+  "src/pages/RouteErrorPage.tsx": {
+    "file": "assets/RouteErrorPage-CTM3YSH-.js",
+    "name": "RouteErrorPage",
+    "src": "src/pages/RouteErrorPage.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "index.html"
     ]
   }
 }

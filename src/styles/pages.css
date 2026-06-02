@@ -1,0 +1,13 @@
+#tnstack-toolkit-root .tk-route-loading,
+#tnstack-toolkit-root .tk-empty-state {
+  margin: 24px;
+  padding: 24px;
+}
+#tnstack-toolkit-root .tk-route-loading {
+  color: var(--muted);
+}
+#tnstack-toolkit-root .tk-empty-state a {
+  display: inline-block;
+  margin-top: 10px;
+  color: #62a6ff;
+}
