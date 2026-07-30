@@ -11,6 +11,7 @@ final class TNStack_Plugin_Lifecycle {
 
 	const VERSION_OPTION = 'tnstack_toolkit_version';
 	const FLUSH_OPTION   = 'tnstack_toolkit_flush_rewrite_rules';
+	const LEGACY_GITHUB_OPTION = 'tnstack_github_updater_settings';
 
 	/**
 	 * Activate the plugin and initialize enabled subsystems.
@@ -20,6 +21,7 @@ final class TNStack_Plugin_Lifecycle {
 
 		update_option( self::VERSION_OPTION, TNSTACK_TOOLKIT_VERSION, false );
 		update_option( self::FLUSH_OPTION, 1, false );
+		delete_site_option( self::LEGACY_GITHUB_OPTION );
 
 		if ( ! function_exists( 'is_plugin_active' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
@@ -66,6 +68,7 @@ final class TNStack_Plugin_Lifecycle {
 
 		update_option( self::VERSION_OPTION, TNSTACK_TOOLKIT_VERSION, false );
 		update_option( self::FLUSH_OPTION, 1, false );
+		delete_site_option( self::LEGACY_GITHUB_OPTION );
 		do_action( 'tnstack_toolkit_upgraded', $installed, TNSTACK_TOOLKIT_VERSION );
 	}
 

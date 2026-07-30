@@ -3,7 +3,7 @@ Contributors: tnstack
 Tags: performance, security, catalog, ux builder, wordpress toolkit
 Requires at least: 6.0
 Requires PHP: 7.4
-Stable tag: 2.1.1
+Stable tag: 2.2.1
 License: GPLv2 or later
 
 TNStack Toolkit cung cấp các module hiệu năng, bảo mật, nội dung, Slim Catalog
@@ -35,14 +35,9 @@ Repository mặc định: `tnstack25-dev/tnstack-toolkit`.
 
 1. Commit và push mã nguồn, bao gồm workflow trong `.github/workflows/release.yml`.
 2. Đảm bảo version trong `tnstack-toolkit.php` khớp với tag.
-3. Tạo và push tag, ví dụ: `git tag v2.1.1` rồi `git push origin v2.1.1`.
+3. Tạo và push tag, ví dụ: `git tag v2.2.1` rồi `git push origin v2.2.1`.
 4. GitHub Actions sẽ tạo Release và tải lên asset `tnstack-toolkit.zip`.
-5. Trong WordPress, mở TNStack Toolkit → GitHub Updates để kiểm tra kết nối.
-
-Repository public không cần token. Repository private cần fine-grained personal
-access token có quyền `Contents: Read-only`. Nên khai báo trong `wp-config.php`:
-
-`define( 'TNSTACK_GITHUB_TOKEN', 'github_pat_xxx' );`
+5. Trong WordPress, mở TNStack Toolkit → Plugin & Hệ thống để kiểm tra cập nhật.
 
 == Frequently Asked Questions ==
 
@@ -58,6 +53,17 @@ quản trị viên nhận được thông báo để kiểm tra.
 
 == Changelog ==
 
+= 2.2.1 =
+
+* Xóa hoàn toàn cấu hình GitHub token và dữ liệu cấu hình cũ.
+* Chỉ sử dụng GitHub Releases công khai để cập nhật plugin.
+
+= 2.2.0 =
+
+* Đổi trang GitHub Updates thành trang tổng quan thông tin plugin, website và máy chủ.
+* Tối ưu tốc độ bằng cache kết quả và lỗi kết nối GitHub, không chặn tải trang quản trị.
+* Không gửi URL website trong User-Agent khi kiểm tra cập nhật.
+
 = 2.1.1 =
 
 * Sửa workflow phát hành không đọc được Version header khi chạy trên GitHub Actions.
@@ -65,7 +71,6 @@ quản trị viên nhận được thông báo để kiểm tra.
 = 2.1.0 =
 
 * Thêm cập nhật plugin trực tiếp từ GitHub Releases trong WordPress.
-* Hỗ trợ public/private repository và fine-grained token.
 * Thêm workflow tự tạo gói `tnstack-toolkit.zip` khi push tag phiên bản.
 
 = 2.0.4 =

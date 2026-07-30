@@ -526,6 +526,150 @@
 	outline-offset: 2px;
 }
 
+.ttk-system-summary {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 12px;
+	margin-bottom: 20px;
+}
+
+.ttk-system-summary__item {
+	display: flex;
+	gap: 12px;
+	align-items: center;
+	min-width: 0;
+	padding: 16px;
+	border: 1px solid var(--ttk-admin-border);
+	border-radius: 12px;
+	background: var(--ttk-admin-surface);
+	box-shadow: 0 3px 14px rgba(15, 23, 42, 0.05);
+}
+
+.ttk-system-summary__item > .dashicons {
+	display: grid;
+	flex: 0 0 38px;
+	width: 38px;
+	height: 38px;
+	place-items: center;
+	border-radius: 10px;
+	background: var(--ttk-admin-accent-soft);
+	color: var(--ttk-admin-accent);
+}
+
+.ttk-system-summary__item div {
+	min-width: 0;
+}
+
+.ttk-system-summary__item small,
+.ttk-system-summary__item strong {
+	display: block;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.ttk-system-summary__item small {
+	margin-bottom: 3px;
+	color: var(--ttk-admin-muted);
+}
+
+.ttk-system-summary__item strong {
+	color: var(--ttk-admin-text);
+	font-size: 14px;
+}
+
+.ttk-system-grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 16px;
+	margin-bottom: 20px;
+}
+
+.ttk-system-grid .ttk-system-card {
+	min-width: 0;
+	margin: 0;
+}
+
+.ttk-system-card__header {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+}
+
+.ttk-system-card__header > .dashicons {
+	color: var(--ttk-admin-accent);
+}
+
+.ttk-system-list {
+	margin: 0;
+	padding: 5px 20px;
+}
+
+.ttk-system-list > div {
+	display: grid;
+	grid-template-columns: minmax(105px, 0.85fr) minmax(0, 1.15fr);
+	gap: 12px;
+	padding: 11px 0;
+	border-bottom: 1px solid #edf0f5;
+}
+
+.ttk-system-list > div:last-child {
+	border-bottom: 0;
+}
+
+.ttk-system-list dt {
+	color: var(--ttk-admin-muted);
+	font-size: 12px;
+}
+
+.ttk-system-list dd {
+	margin: 0;
+	overflow-wrap: anywhere;
+	color: var(--ttk-admin-text);
+	font-size: 12px;
+	font-weight: 600;
+	text-align: right;
+}
+
+.ttk-security-checks {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 12px;
+	padding: 20px 22px;
+}
+
+.ttk-security-checks > div {
+	display: grid;
+	grid-template-columns: 28px 1fr;
+	gap: 2px 9px;
+	align-items: center;
+	padding: 14px;
+	border: 1px solid var(--ttk-admin-border);
+	border-radius: 10px;
+	background: #f8fafc;
+}
+
+.ttk-security-checks .dashicons {
+	grid-row: 1 / span 2;
+}
+
+.ttk-security-checks strong,
+.ttk-security-checks small {
+	display: block;
+}
+
+.ttk-security-checks small {
+	color: var(--ttk-admin-muted);
+}
+
+.ttk-security-checks .is-good .dashicons {
+	color: #059669;
+}
+
+.ttk-security-checks .is-warning .dashicons {
+	color: #d97706;
+}
+
 .ttk-settings__update-status {
 	display: grid;
 	grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -558,30 +702,41 @@
 	font-size: 15px;
 }
 
-.ttk-settings__token-row {
+.ttk-settings__public-update {
 	display: flex;
-	max-width: 650px;
-	gap: 10px;
-	align-items: center;
+	gap: 12px;
+	align-items: flex-start;
+	padding: 20px 22px;
 }
 
-.ttk-settings__token-row input {
-	flex: 1;
+.ttk-settings__public-update > .dashicons {
+	flex: 0 0 24px;
+	color: var(--ttk-admin-success);
+	font-size: 24px;
 }
 
-.ttk-settings__code {
+.ttk-settings__public-update strong,
+.ttk-settings__public-update p {
 	display: block;
-	margin-top: 9px;
-	padding: 10px 12px;
-	overflow-x: auto;
-	border-radius: 7px;
-	background: #0f172a;
-	color: #e2e8f0;
-	white-space: nowrap;
+}
+
+.ttk-settings__public-update p {
+	margin: 4px 0 0;
+	color: var(--ttk-admin-muted);
 }
 
 .ttk-settings__card-actions {
 	padding: 0 22px 22px;
+}
+
+@media (max-width: 1100px) {
+	.ttk-system-summary {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.ttk-system-grid {
+		grid-template-columns: 1fr;
+	}
 }
 
 @media (max-width: 782px) {
@@ -606,9 +761,10 @@
 		grid-template-columns: 1fr;
 	}
 
-	.ttk-settings__token-row {
-		align-items: stretch;
-		flex-direction: column;
+	.ttk-system-summary,
+	.ttk-system-grid,
+	.ttk-security-checks {
+		grid-template-columns: 1fr;
 	}
 
 	.ttk-settings .form-table th,

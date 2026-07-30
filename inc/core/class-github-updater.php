@@ -10,9 +10,10 @@ defined( 'ABSPATH' ) || exit;
 final class TNStack_GitHub_Updater {
 
 	const REPOSITORY       = 'tnstack25-dev/tnstack-toolkit';
-	const SETTINGS_OPTION  = 'tnstack_github_updater_settings';
 	const RELEASE_CACHE    = 'tnstack_github_latest_release';
+	const ERROR_CACHE      = 'tnstack_github_release_error';
 	const RELEASE_CACHE_TTL = 6 * HOUR_IN_SECONDS;
+	const ERROR_CACHE_TTL  = 30 * MINUTE_IN_SECONDS;
 	const PLUGIN_SLUG      = 'tnstack-toolkit';
 	const ASSET_NAME       = 'tnstack-toolkit.zip';
 
@@ -33,12 +34,10 @@ final class TNStack_GitHub_Updater {
 
 		add_filter( 'update_plugins_github.com', array( __CLASS__, 'filter_update' ), 10, 4 );
 		add_filter( 'plugins_api', array( __CLASS__, 'plugin_information' ), 20, 3 );
-		add_filter( 'upgrader_pre_download', array( __CLASS__, 'pre_download_private_package' ), 10, 4 );
 		add_filter( 'upgrader_source_selection', array( __CLASS__, 'normalize_package_directory' ), 10, 4 );
 
 		if ( is_admin() ) {
 			add_action( 'admin_menu', array( __CLASS__, 'register_admin_page' ), 30 );
-			add_action( 'admin_post_tnstack_github_updater_save', array( __CLASS__, 'handle_save' ) );
 			add_action( 'admin_post_tnstack_github_updater_check', array( __CLASS__, 'handle_check' ) );
 		}
 	}
@@ -121,75 +120,6 @@ final class TNStack_GitHub_Updater {
 	}
 
 	/**
-	 * Download a private GitHub API package without forwarding the token to
-	 * GitHub's redirected object-storage host.
-	 *
-	 * @param bool|WP_Error|string $reply      Existing pre-download result.
-	 * @param string               $package    Package URL.
-	 * @param WP_Upgrader          $upgrader   Upgrader instance.
-	 * @param array                $hook_extra Upgrade context.
-	 * @return bool|WP_Error|string
-	 */
-	public static function pre_download_private_package( $reply, $package, $upgrader, $hook_extra ) {
-		unset( $upgrader );
-
-		if ( false !== $reply || ! self::is_our_upgrade( $hook_extra ) || ! self::is_repository_api_url( $package ) ) {
-			return $reply;
-		}
-
-		$token = self::token();
-		if ( '' === $token ) {
-			return $reply;
-		}
-
-		$response = wp_remote_get(
-			$package,
-			array(
-				'timeout'     => 30,
-				'redirection' => 0,
-				'headers'     => self::github_headers( true ),
-			)
-		);
-
-		if ( is_wp_error( $response ) ) {
-			return $response;
-		}
-
-		$code = (int) wp_remote_retrieve_response_code( $response );
-		if ( in_array( $code, array( 301, 302, 303, 307, 308 ), true ) ) {
-			$location = wp_remote_retrieve_header( $response, 'location' );
-			if ( ! $location || ! wp_http_validate_url( $location ) ) {
-				return new WP_Error( 'tnstack_github_redirect', __( 'GitHub không trả về URL tải xuống hợp lệ.', 'tnstack-toolkit' ) );
-			}
-
-			if ( ! function_exists( 'download_url' ) ) {
-				require_once ABSPATH . 'wp-admin/includes/file.php';
-			}
-
-			return download_url( $location, 300 );
-		}
-
-		if ( 200 !== $code ) {
-			return new WP_Error(
-				'tnstack_github_download',
-				sprintf(
-					/* translators: %d: HTTP status code. */
-					__( 'Không thể tải gói cập nhật từ GitHub (HTTP %d).', 'tnstack-toolkit' ),
-					$code
-				)
-			);
-		}
-
-		$body = wp_remote_retrieve_body( $response );
-		$temp = wp_tempnam( self::ASSET_NAME );
-		if ( ! $temp || false === file_put_contents( $temp, $body ) ) {
-			return new WP_Error( 'tnstack_github_temp_file', __( 'Không thể tạo tệp cập nhật tạm thời.', 'tnstack-toolkit' ) );
-		}
-
-		return $temp;
-	}
-
-	/**
 	 * Ensure GitHub-generated archives install into the existing plugin slug.
 	 *
 	 * @param string      $source        Extracted source path.
@@ -228,39 +158,12 @@ final class TNStack_GitHub_Updater {
 	public static function register_admin_page() {
 		add_submenu_page(
 			TNStack_Toolkit_Features_Dashboard::PAGE_SLUG,
-			__( 'GitHub Updates', 'tnstack-toolkit' ),
-			__( 'GitHub Updates', 'tnstack-toolkit' ),
+			__( 'Plugin & Hệ thống', 'tnstack-toolkit' ),
+			__( 'Plugin & Hệ thống', 'tnstack-toolkit' ),
 			'manage_options',
 			'tnstack-github-updates',
 			array( __CLASS__, 'render_admin_page' )
 		);
-	}
-
-	/**
-	 * Save the optional private repository token.
-	 */
-	public static function handle_save() {
-		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Bạn không có quyền thực hiện thao tác này.', 'tnstack-toolkit' ), '', array( 'response' => 403 ) );
-		}
-
-		check_admin_referer( 'tnstack_github_updater_save' );
-
-		if ( ! defined( 'TNSTACK_GITHUB_TOKEN' ) ) {
-			$settings = self::settings();
-
-			if ( ! empty( $_POST['remove_token'] ) ) {
-				$settings['token'] = '';
-			} elseif ( isset( $_POST['github_token'] ) && '' !== trim( wp_unslash( $_POST['github_token'] ) ) ) {
-				$settings['token'] = sanitize_text_field( trim( wp_unslash( $_POST['github_token'] ) ) );
-			}
-
-			update_site_option( self::SETTINGS_OPTION, $settings );
-		}
-
-		self::clear_cache();
-		wp_safe_redirect( add_query_arg( 'github-updater', 'saved', self::admin_url() ) );
-		exit;
 	}
 
 	/**
@@ -273,14 +176,14 @@ final class TNStack_GitHub_Updater {
 
 		check_admin_referer( 'tnstack_github_updater_check' );
 		self::clear_cache();
-		self::get_release( true );
+		$release = self::get_release( true );
 		delete_site_transient( 'update_plugins' );
 
 		if ( function_exists( 'wp_update_plugins' ) ) {
 			wp_update_plugins();
 		}
 
-		wp_safe_redirect( add_query_arg( 'github-updater', 'checked', self::admin_url() ) );
+		wp_safe_redirect( add_query_arg( 'github-updater', is_wp_error( $release ) ? 'check-error' : 'checked', self::admin_url() ) );
 		exit;
 	}
 
@@ -292,85 +195,158 @@ final class TNStack_GitHub_Updater {
 			return;
 		}
 
-		$release      = self::get_release();
-		$token        = self::token();
-		$token_source = defined( 'TNSTACK_GITHUB_TOKEN' ) ? 'wp-config.php' : ( '' !== $token ? __( 'Database', 'tnstack-toolkit' ) : __( 'Không có', 'tnstack-toolkit' ) );
+		global $wpdb;
+
+		$release      = get_site_transient( self::RELEASE_CACHE );
+		$release      = is_array( $release ) && ! empty( $release['version'] ) ? $release : false;
+		$cached_error = get_site_transient( self::ERROR_CACHE );
 		$status       = isset( $_GET['github-updater'] ) ? sanitize_key( wp_unslash( $_GET['github-updater'] ) ) : '';
+		$latest       = $release ? $release['version'] : __( 'Chưa kiểm tra', 'tnstack-toolkit' );
+		$update_state = ! $release
+			? __( 'Chưa kiểm tra', 'tnstack-toolkit' )
+			: ( version_compare( $release['version'], TNSTACK_TOOLKIT_VERSION, '>' )
+				? __( 'Có bản cập nhật', 'tnstack-toolkit' )
+				: __( 'Đã mới nhất', 'tnstack-toolkit' ) );
+		$checked_at   = $release && ! empty( $release['checked_at'] )
+			? wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), (int) $release['checked_at'] )
+			: __( 'Chưa có', 'tnstack-toolkit' );
+		$theme        = wp_get_theme();
+		$environment  = function_exists( 'wp_get_environment_type' ) ? wp_get_environment_type() : 'production';
+		$https        = is_ssl() || 0 === strpos( home_url( '/' ), 'https://' );
+		$debug        = defined( 'WP_DEBUG' ) && WP_DEBUG;
+		$file_edit    = ! defined( 'DISALLOW_FILE_EDIT' ) || ! DISALLOW_FILE_EDIT;
+		$server_name  = isset( $_SERVER['SERVER_SOFTWARE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ) : __( 'Không xác định', 'tnstack-toolkit' );
+		$curl         = function_exists( 'curl_version' ) ? curl_version() : array();
+		$curl         = is_array( $curl ) ? $curl : array();
+
+		$plugin_info = array(
+			__( 'Phiên bản đang cài', 'tnstack-toolkit' ) => TNSTACK_TOOLKIT_VERSION,
+			__( 'Bản phát hành mới nhất', 'tnstack-toolkit' ) => $latest,
+			__( 'Trạng thái cập nhật', 'tnstack-toolkit' ) => $update_state,
+			__( 'Lần kiểm tra gần nhất', 'tnstack-toolkit' ) => $checked_at,
+			__( 'Kho mã nguồn', 'tnstack-toolkit' )       => self::repository(),
+			__( 'Kênh cập nhật', 'tnstack-toolkit' )     => 'GitHub Releases',
+		);
+		$website_info = array(
+			__( 'Địa chỉ website', 'tnstack-toolkit' )   => home_url( '/' ),
+			__( 'WordPress', 'tnstack-toolkit' )         => get_bloginfo( 'version' ),
+			__( 'Môi trường', 'tnstack-toolkit' )        => $environment,
+			__( 'Ngôn ngữ', 'tnstack-toolkit' )          => get_locale(),
+			__( 'Múi giờ', 'tnstack-toolkit' )           => wp_timezone_string(),
+			__( 'Giao diện đang dùng', 'tnstack-toolkit' ) => trim( $theme->get( 'Name' ) . ' ' . $theme->get( 'Version' ) ),
+			__( 'Multisite', 'tnstack-toolkit' )         => is_multisite() ? __( 'Có', 'tnstack-toolkit' ) : __( 'Không', 'tnstack-toolkit' ),
+		);
+		$server_info = array(
+			__( 'PHP', 'tnstack-toolkit' )               => PHP_VERSION,
+			__( 'Cơ sở dữ liệu', 'tnstack-toolkit' )     => $wpdb->db_version(),
+			__( 'Web server', 'tnstack-toolkit' )        => $server_name,
+			__( 'Bộ nhớ WordPress', 'tnstack-toolkit' )  => defined( 'WP_MEMORY_LIMIT' ) ? WP_MEMORY_LIMIT : __( 'Mặc định', 'tnstack-toolkit' ),
+			__( 'Giới hạn tải lên', 'tnstack-toolkit' )  => size_format( wp_max_upload_size() ),
+			__( 'Thời gian thực thi tối đa', 'tnstack-toolkit' ) => (string) ini_get( 'max_execution_time' ) . 's',
+			__( 'cURL', 'tnstack-toolkit' )              => isset( $curl['version'] ) ? $curl['version'] : __( 'Không khả dụng', 'tnstack-toolkit' ),
+		);
 		?>
 		<div class="wrap ttk-settings ttk-settings--updater">
 			<header class="ttk-settings__hero">
-				<span class="ttk-settings__hero-icon"><span class="dashicons dashicons-update"></span></span>
+				<span class="ttk-settings__hero-icon"><span class="dashicons dashicons-admin-tools"></span></span>
 				<div>
 					<span class="ttk-settings__eyebrow"><?php esc_html_e( 'TNStack Toolkit', 'tnstack-toolkit' ); ?></span>
-					<h1><?php esc_html_e( 'GitHub Updates', 'tnstack-toolkit' ); ?></h1>
-					<p><?php esc_html_e( 'Nhận bản phát hành mới từ GitHub và cập nhật trực tiếp trong WordPress.', 'tnstack-toolkit' ); ?></p>
+					<h1><?php esc_html_e( 'Thông tin plugin & hệ thống', 'tnstack-toolkit' ); ?></h1>
+					<p><?php esc_html_e( 'Theo dõi cập nhật plugin, cấu hình website và khả năng tương thích máy chủ tại một nơi.', 'tnstack-toolkit' ); ?></p>
 				</div>
 			</header>
 
-			<?php if ( 'saved' === $status ) : ?>
-				<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Đã lưu cấu hình GitHub updater.', 'tnstack-toolkit' ); ?></p></div>
-			<?php elseif ( 'checked' === $status ) : ?>
-				<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Đã kiểm tra lại bản phát hành GitHub.', 'tnstack-toolkit' ); ?></p></div>
+			<?php if ( 'checked' === $status ) : ?>
+				<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Đã làm mới thông tin bản phát hành GitHub.', 'tnstack-toolkit' ); ?></p></div>
+			<?php elseif ( 'check-error' === $status ) : ?>
+				<div class="notice notice-error"><p><?php esc_html_e( 'Không thể kết nối GitHub. Kết quả lỗi được lưu tạm để tránh làm chậm trang quản trị.', 'tnstack-toolkit' ); ?></p></div>
 			<?php endif; ?>
 
-			<?php if ( is_wp_error( $release ) ) : ?>
-				<div class="notice notice-error"><p><?php echo esc_html( $release->get_error_message() ); ?></p></div>
+			<?php if ( is_array( $cached_error ) && ! empty( $cached_error['message'] ) ) : ?>
+				<div class="notice notice-warning"><p><?php echo esc_html( $cached_error['message'] ); ?></p></div>
 			<?php endif; ?>
 
-			<section class="ttk-settings__card">
-				<div class="ttk-settings__card-header">
-					<h2><?php esc_html_e( 'Trạng thái cập nhật', 'tnstack-toolkit' ); ?></h2>
-					<p><a href="<?php echo esc_url( self::repository_url() ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html( self::repository() ); ?></a></p>
+			<div class="ttk-system-summary">
+				<div class="ttk-system-summary__item">
+					<span class="dashicons dashicons-admin-plugins"></span>
+					<div><small><?php esc_html_e( 'Plugin', 'tnstack-toolkit' ); ?></small><strong><?php echo esc_html( TNSTACK_TOOLKIT_VERSION ); ?></strong></div>
 				</div>
-				<div class="ttk-settings__update-status">
-					<div class="ttk-settings__update-stat">
-						<span><?php esc_html_e( 'Bản đang cài', 'tnstack-toolkit' ); ?></span>
-						<strong><?php echo esc_html( TNSTACK_TOOLKIT_VERSION ); ?></strong>
+				<div class="ttk-system-summary__item">
+					<span class="dashicons dashicons-update"></span>
+					<div><small><?php esc_html_e( 'Cập nhật', 'tnstack-toolkit' ); ?></small><strong><?php echo esc_html( $update_state ); ?></strong></div>
+				</div>
+				<div class="ttk-system-summary__item">
+					<span class="dashicons dashicons-shield"></span>
+					<div><small><?php esc_html_e( 'HTTPS', 'tnstack-toolkit' ); ?></small><strong><?php echo esc_html( $https ? __( 'Đang bật', 'tnstack-toolkit' ) : __( 'Đang tắt', 'tnstack-toolkit' ) ); ?></strong></div>
+				</div>
+				<div class="ttk-system-summary__item">
+					<span class="dashicons dashicons-performance"></span>
+					<div><small><?php esc_html_e( 'PHP', 'tnstack-toolkit' ); ?></small><strong><?php echo esc_html( PHP_VERSION ); ?></strong></div>
+				</div>
+			</div>
+
+			<div class="ttk-system-grid">
+				<?php
+				$sections = array(
+					array( 'icon' => 'admin-plugins', 'title' => __( 'Thông tin plugin', 'tnstack-toolkit' ), 'items' => $plugin_info ),
+					array( 'icon' => 'admin-site-alt3', 'title' => __( 'Thông tin website', 'tnstack-toolkit' ), 'items' => $website_info ),
+					array( 'icon' => 'database', 'title' => __( 'Thông tin máy chủ', 'tnstack-toolkit' ), 'items' => $server_info ),
+				);
+				foreach ( $sections as $section ) :
+					?>
+					<section class="ttk-settings__card ttk-system-card">
+						<div class="ttk-settings__card-header ttk-system-card__header">
+							<span class="dashicons dashicons-<?php echo esc_attr( $section['icon'] ); ?>"></span>
+							<h2><?php echo esc_html( $section['title'] ); ?></h2>
+						</div>
+						<dl class="ttk-system-list">
+							<?php foreach ( $section['items'] as $label => $value ) : ?>
+								<div>
+									<dt><?php echo esc_html( $label ); ?></dt>
+									<dd><?php echo esc_html( $value ); ?></dd>
+								</div>
+							<?php endforeach; ?>
+						</dl>
+					</section>
+				<?php endforeach; ?>
+			</div>
+
+			<section class="ttk-settings__card ttk-security-card">
+				<div class="ttk-settings__card-header">
+					<h2><?php esc_html_e( 'Tổng quan bảo mật', 'tnstack-toolkit' ); ?></h2>
+					<p><?php esc_html_e( 'Chỉ quản trị viên được xem trang này. Đường dẫn hệ thống và địa chỉ IP không được hiển thị.', 'tnstack-toolkit' ); ?></p>
+				</div>
+				<div class="ttk-security-checks">
+					<div class="<?php echo esc_attr( $https ? 'is-good' : 'is-warning' ); ?>">
+						<span class="dashicons dashicons-<?php echo esc_attr( $https ? 'yes-alt' : 'warning' ); ?>"></span>
+						<strong>HTTPS</strong>
+						<small><?php echo esc_html( $https ? __( 'Kết nối an toàn đang bật', 'tnstack-toolkit' ) : __( 'Nên bật HTTPS', 'tnstack-toolkit' ) ); ?></small>
 					</div>
-					<div class="ttk-settings__update-stat">
-						<span><?php esc_html_e( 'GitHub Release', 'tnstack-toolkit' ); ?></span>
-						<strong><?php echo esc_html( is_wp_error( $release ) ? __( 'Chưa kết nối', 'tnstack-toolkit' ) : $release['version'] ); ?></strong>
+					<div class="<?php echo esc_attr( $debug ? 'is-warning' : 'is-good' ); ?>">
+						<span class="dashicons dashicons-<?php echo esc_attr( $debug ? 'warning' : 'yes-alt' ); ?>"></span>
+						<strong>WP_DEBUG</strong>
+						<small><?php echo esc_html( $debug ? __( 'Đang bật; nên tắt trên website thật', 'tnstack-toolkit' ) : __( 'Đang tắt', 'tnstack-toolkit' ) ); ?></small>
 					</div>
-					<div class="ttk-settings__update-stat">
-						<span><?php esc_html_e( 'Nguồn token', 'tnstack-toolkit' ); ?></span>
-						<strong><?php echo esc_html( $token_source ); ?></strong>
+					<div class="<?php echo esc_attr( $file_edit ? 'is-warning' : 'is-good' ); ?>">
+						<span class="dashicons dashicons-<?php echo esc_attr( $file_edit ? 'warning' : 'yes-alt' ); ?>"></span>
+						<strong>DISALLOW_FILE_EDIT</strong>
+						<small><?php echo esc_html( $file_edit ? __( 'Trình sửa file đang bật', 'tnstack-toolkit' ) : __( 'Trình sửa file đã tắt', 'tnstack-toolkit' ) ); ?></small>
 					</div>
 				</div>
 			</section>
 
 			<section class="ttk-settings__card">
 				<div class="ttk-settings__card-header">
-					<h2><?php esc_html_e( 'Private repository token', 'tnstack-toolkit' ); ?></h2>
-					<p><?php esc_html_e( 'Repo public không cần token. Repo private cần fine-grained token có quyền Contents: Read-only.', 'tnstack-toolkit' ); ?></p>
+					<h2><?php esc_html_e( 'Cập nhật từ GitHub', 'tnstack-toolkit' ); ?></h2>
+					<p><?php esc_html_e( 'Plugin nhận bản cập nhật công khai từ GitHub Releases của kho mã nguồn:', 'tnstack-toolkit' ); ?> <a href="<?php echo esc_url( self::repository_url() ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html( self::repository() ); ?></a></p>
 				</div>
-				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-					<input type="hidden" name="action" value="tnstack_github_updater_save">
-					<?php wp_nonce_field( 'tnstack_github_updater_save' ); ?>
-					<table class="form-table" role="presentation">
-						<tr>
-							<th scope="row"><label for="tnstack_github_token"><?php esc_html_e( 'GitHub token', 'tnstack-toolkit' ); ?></label></th>
-							<td>
-								<?php if ( defined( 'TNSTACK_GITHUB_TOKEN' ) ) : ?>
-									<p><strong><?php esc_html_e( 'Token đang được quản lý trong wp-config.php.', 'tnstack-toolkit' ); ?></strong></p>
-								<?php else : ?>
-									<div class="ttk-settings__token-row">
-										<input type="password" id="tnstack_github_token" name="github_token" class="regular-text" value="" placeholder="<?php echo '' !== $token ? esc_attr__( 'Token đã được lưu — để trống để giữ nguyên', 'tnstack-toolkit' ) : 'github_pat_…'; ?>" autocomplete="new-password">
-										<?php if ( '' !== $token ) : ?>
-											<label><input type="checkbox" name="remove_token" value="1"> <?php esc_html_e( 'Xóa token', 'tnstack-toolkit' ); ?></label>
-										<?php endif; ?>
-									</div>
-								<?php endif; ?>
-								<p class="description"><?php esc_html_e( 'Khuyến nghị an toàn: khai báo token bằng hằng số sau trong wp-config.php.', 'tnstack-toolkit' ); ?></p>
-								<code class="ttk-settings__code">define( 'TNSTACK_GITHUB_TOKEN', 'github_pat_xxx' );</code>
-							</td>
-						</tr>
-					</table>
-					<?php if ( ! defined( 'TNSTACK_GITHUB_TOKEN' ) ) : ?>
-						<div class="ttk-settings__actions ttk-settings__card-actions">
-							<?php submit_button( __( 'Lưu token', 'tnstack-toolkit' ), 'primary', 'submit', false ); ?>
-						</div>
-					<?php endif; ?>
-				</form>
+				<div class="ttk-settings__public-update">
+					<span class="dashicons dashicons-yes-alt"></span>
+					<div>
+						<strong><?php esc_html_e( 'Kênh cập nhật công khai đã sẵn sàng', 'tnstack-toolkit' ); ?></strong>
+						<p><?php esc_html_e( 'WordPress tải trực tiếp gói tnstack-toolkit.zip từ bản phát hành GitHub.', 'tnstack-toolkit' ); ?></p>
+					</div>
+				</div>
 			</section>
 
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
@@ -396,47 +372,60 @@ final class TNStack_GitHub_Updater {
 			if ( is_array( $cached ) && ! empty( $cached['version'] ) ) {
 				return $cached;
 			}
+
+			$cached_error = get_site_transient( self::ERROR_CACHE );
+			if ( is_array( $cached_error ) && ! empty( $cached_error['message'] ) ) {
+				return new WP_Error(
+					isset( $cached_error['code'] ) ? sanitize_key( $cached_error['code'] ) : 'tnstack_github_cached_error',
+					(string) $cached_error['message']
+				);
+			}
+		} else {
+			delete_site_transient( self::RELEASE_CACHE );
+			delete_site_transient( self::ERROR_CACHE );
 		}
 
 		$url      = 'https://api.github.com/repos/' . self::repository() . '/releases/latest';
 		$response = wp_remote_get(
 			$url,
 			array(
-				'timeout' => 15,
-				'headers' => self::github_headers(),
+				'timeout'     => 8,
+				'redirection' => 2,
+				'headers'     => self::github_headers(),
+				'limit_response_size' => 1048576,
 			)
 		);
 
 		if ( is_wp_error( $response ) ) {
-			return $response;
+			return self::cache_error( $response );
 		}
 
 		$code = (int) wp_remote_retrieve_response_code( $response );
 		if ( 200 !== $code ) {
 			$message = 404 === $code
-				? __( 'Không tìm thấy GitHub Release. Nếu repo private, hãy cấu hình token; đồng thời cần tạo ít nhất một Release.', 'tnstack-toolkit' )
+				? __( 'Không tìm thấy GitHub Release. Hãy tạo ít nhất một bản phát hành công khai có gói tnstack-toolkit.zip.', 'tnstack-toolkit' )
 				: sprintf(
 					/* translators: %d: HTTP status code. */
 					__( 'GitHub API trả về HTTP %d.', 'tnstack-toolkit' ),
 					$code
 				);
 
-			return new WP_Error( 'tnstack_github_api', $message );
+			return self::cache_error( new WP_Error( 'tnstack_github_api', $message ) );
 		}
 
 		$data = json_decode( wp_remote_retrieve_body( $response ), true );
 		if ( ! is_array( $data ) || empty( $data['tag_name'] ) ) {
-			return new WP_Error( 'tnstack_github_release', __( 'Dữ liệu GitHub Release không hợp lệ.', 'tnstack-toolkit' ) );
+			return self::cache_error( new WP_Error( 'tnstack_github_release', __( 'Dữ liệu GitHub Release không hợp lệ.', 'tnstack-toolkit' ) ) );
 		}
 
 		$version = ltrim( sanitize_text_field( (string) $data['tag_name'] ), "vV \t\n\r\0\x0B" );
 		if ( ! preg_match( '/^\d+(?:\.\d+){1,3}(?:[-+][0-9A-Za-z.-]+)?$/', $version ) ) {
-			return new WP_Error( 'tnstack_github_version', __( 'Tag GitHub Release không phải phiên bản hợp lệ.', 'tnstack-toolkit' ) );
+			return self::cache_error( new WP_Error( 'tnstack_github_version', __( 'Tag GitHub Release không phải phiên bản hợp lệ.', 'tnstack-toolkit' ) ) );
 		}
 
 		$package = self::release_package_url( $data );
-		if ( '' === $package ) {
-			return new WP_Error( 'tnstack_github_package', __( 'GitHub Release không có gói ZIP để cập nhật.', 'tnstack-toolkit' ) );
+		if ( '' === $package || ! self::is_trusted_package_url( $package ) ) {
+			return self::cache_error( new WP_Error( 'tnstack_github_package', __( 'GitHub Release không có gói ZIP để cập nhật.', 'tnstack-toolkit' ) ) );
 		}
 
 		$release = array(
@@ -446,8 +435,10 @@ final class TNStack_GitHub_Updater {
 			'package'      => esc_url_raw( $package ),
 			'body'         => isset( $data['body'] ) ? (string) $data['body'] : '',
 			'published_at' => isset( $data['published_at'] ) ? (string) $data['published_at'] : '',
+			'checked_at'   => time(),
 		);
 
+		delete_site_transient( self::ERROR_CACHE );
 		set_site_transient( self::RELEASE_CACHE, $release, self::RELEASE_CACHE_TTL );
 		return $release;
 	}
@@ -459,16 +450,11 @@ final class TNStack_GitHub_Updater {
 	 * @return string
 	 */
 	private static function release_package_url( $release ) {
-		$token  = self::token();
 		$assets = isset( $release['assets'] ) && is_array( $release['assets'] ) ? $release['assets'] : array();
 
 		foreach ( $assets as $asset ) {
 			if ( ! is_array( $asset ) || self::ASSET_NAME !== ( $asset['name'] ?? '' ) ) {
 				continue;
-			}
-
-			if ( '' !== $token && ! empty( $asset['url'] ) ) {
-				return (string) $asset['url'];
 			}
 
 			return isset( $asset['browser_download_url'] ) ? (string) $asset['browser_download_url'] : '';
@@ -478,42 +464,14 @@ final class TNStack_GitHub_Updater {
 	}
 
 	/**
-	 * @param bool $download Request binary content.
 	 * @return array<string, string>
 	 */
-	private static function github_headers( $download = false ) {
-		$headers = array(
-			'Accept'               => $download ? 'application/octet-stream' : 'application/vnd.github+json',
-			'X-GitHub-Api-Version' => '2026-03-10',
-			'User-Agent'           => 'TNStack-Toolkit/' . TNSTACK_TOOLKIT_VERSION . '; ' . home_url( '/' ),
+	private static function github_headers() {
+		return array(
+			'Accept'               => 'application/vnd.github+json',
+			'X-GitHub-Api-Version' => '2022-11-28',
+			'User-Agent'           => 'TNStack-Toolkit/' . TNSTACK_TOOLKIT_VERSION . ' WordPress/' . get_bloginfo( 'version' ),
 		);
-
-		$token = self::token();
-		if ( '' !== $token ) {
-			$headers['Authorization'] = 'Bearer ' . $token;
-		}
-
-		return $headers;
-	}
-
-	/**
-	 * @return array<string, string>
-	 */
-	private static function settings() {
-		$settings = get_site_option( self::SETTINGS_OPTION, array() );
-		return is_array( $settings ) ? wp_parse_args( $settings, array( 'token' => '' ) ) : array( 'token' => '' );
-	}
-
-	/**
-	 * @return string
-	 */
-	private static function token() {
-		if ( defined( 'TNSTACK_GITHUB_TOKEN' ) && is_string( TNSTACK_GITHUB_TOKEN ) ) {
-			return trim( TNSTACK_GITHUB_TOKEN );
-		}
-
-		$settings = self::settings();
-		return isset( $settings['token'] ) ? trim( (string) $settings['token'] ) : '';
 	}
 
 	/**
@@ -552,13 +510,41 @@ final class TNStack_GitHub_Updater {
 	}
 
 	/**
-	 * @param string $url URL to inspect.
+	 * Only accept public packages hosted by GitHub over HTTPS.
+	 *
+	 * @param string $url Package URL.
 	 * @return bool
 	 */
-	private static function is_repository_api_url( $url ) {
-		$expected = '/repos/' . self::repository() . '/';
-		return 'api.github.com' === wp_parse_url( $url, PHP_URL_HOST )
-			&& 0 === strpos( (string) wp_parse_url( $url, PHP_URL_PATH ), $expected );
+	private static function is_trusted_package_url( $url ) {
+		if ( 'https' !== wp_parse_url( $url, PHP_URL_SCHEME ) ) {
+			return false;
+		}
+
+		$host = strtolower( (string) wp_parse_url( $url, PHP_URL_HOST ) );
+		return 'github.com' === $host
+			|| 'api.github.com' === $host
+			|| 'objects.githubusercontent.com' === $host
+			|| 'release-assets.githubusercontent.com' === $host
+			|| ( strlen( $host ) > 22 && '.githubusercontent.com' === substr( $host, -22 ) );
+	}
+
+	/**
+	 * Cache connection failures briefly to prevent repeated slow requests.
+	 *
+	 * @param WP_Error $error Error to cache.
+	 * @return WP_Error
+	 */
+	private static function cache_error( $error ) {
+		set_site_transient(
+			self::ERROR_CACHE,
+			array(
+				'code'    => $error->get_error_code(),
+				'message' => $error->get_error_message(),
+			),
+			self::ERROR_CACHE_TTL
+		);
+
+		return $error;
 	}
 
 	/**
@@ -566,6 +552,7 @@ final class TNStack_GitHub_Updater {
 	 */
 	private static function clear_cache() {
 		delete_site_transient( self::RELEASE_CACHE );
+		delete_site_transient( self::ERROR_CACHE );
 		delete_site_transient( 'update_plugins' );
 	}
 }
