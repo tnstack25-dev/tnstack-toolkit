@@ -3,7 +3,7 @@ Contributors: tnstack
 Tags: performance, security, catalog, ux builder, wordpress toolkit
 Requires at least: 6.0
 Requires PHP: 7.4
-Stable tag: 2.1.0
+Stable tag: 2.1.1
 License: GPLv2 or later
 
 TNStack Toolkit cung cấp các module hiệu năng, bảo mật, nội dung, Slim Catalog
@@ -35,7 +35,7 @@ Repository mặc định: `tnstack25-dev/tnstack-toolkit`.
 
 1. Commit và push mã nguồn, bao gồm workflow trong `.github/workflows/release.yml`.
 2. Đảm bảo version trong `tnstack-toolkit.php` khớp với tag.
-3. Tạo và push tag, ví dụ: `git tag v2.1.0` rồi `git push origin v2.1.0`.
+3. Tạo và push tag, ví dụ: `git tag v2.1.1` rồi `git push origin v2.1.1`.
 4. GitHub Actions sẽ tạo Release và tải lên asset `tnstack-toolkit.zip`.
 5. Trong WordPress, mở TNStack Toolkit → GitHub Updates để kiểm tra kết nối.
 
@@ -57,6 +57,10 @@ Lỗi được cô lập ở module tương ứng. Các module còn lại tiếp
 quản trị viên nhận được thông báo để kiểm tra.
 
 == Changelog ==
+
+= 2.1.1 =
+
+* Sửa workflow phát hành không đọc được Version header khi chạy trên GitHub Actions.
 
 = 2.1.0 =
 
