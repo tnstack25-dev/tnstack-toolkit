@@ -1,0 +1,9 @@
+<div
+	class="pricing-grid-table__cell"
+	ng-class="{'pricing-grid-table__cell--header': shortcode.parent.options.header === 'true'}"
+	ng-style="{
+		'background-color': shortcode.options.bg_color || (shortcode.parent.options.header !== 'true' ? shortcode.parent.options.bg_color : ''),
+		'color': shortcode.options.text_color || shortcode.parent.options.text_color
+	}">
+	<span class="pricing-grid-table__cell-text" ng-bind-html="shortcode.options.text | html"></span>
+</div>

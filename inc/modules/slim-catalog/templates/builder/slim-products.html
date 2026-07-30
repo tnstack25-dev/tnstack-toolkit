@@ -1,0 +1,12 @@
+<section
+	id="{{:: shortcode.$id }}"
+	class="sc-section sc-products container {{ shortcode.options.class }} {{ shortcode.options.visibility }}"
+	ng-style="{'--sc-columns': shortcode.options.columns || 3}">
+	<header class="sc-section__header" ng-if="shortcode.options.title || shortcode.options.subtitle">
+		<h2 class="sc-section__title" ng-if="shortcode.options.title">{{ shortcode.options.title }}</h2>
+		<p class="sc-section__subtitle" ng-if="shortcode.options.subtitle">{{ shortcode.options.subtitle }}</p>
+	</header>
+	<div class="sc-grid uxb-no-content">
+		<p>Slim product grid</p>
+	</div>
+</section>

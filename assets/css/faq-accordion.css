@@ -1,0 +1,29 @@
+.tnstack-faq {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 1.5em 0;
+}
+.tnstack-faq__item {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fff;
+  overflow: hidden;
+}
+.tnstack-faq__q {
+  padding: 14px 18px;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+.tnstack-faq__q::-webkit-details-marker {
+  display: none;
+}
+.tnstack-faq__a {
+  padding: 0 18px 14px;
+  color: #64748b;
+  line-height: 1.6;
+}
+.tnstack-faq__item[open] .tnstack-faq__q {
+  color: #4f46e5;
+}

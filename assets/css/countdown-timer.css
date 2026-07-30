@@ -1,0 +1,41 @@
+.tnstack-countdown {
+  text-align: center;
+  margin: 1.5em 0;
+  padding: 1.5em;
+  background: linear-gradient(135deg, #312e81, #4f46e5);
+  border-radius: 14px;
+  color: #fff;
+}
+.tnstack-countdown__label {
+  margin: 0 0 1em;
+  font-size: 1.1em;
+  font-weight: 600;
+}
+.tnstack-countdown__grid {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.tnstack-countdown__unit {
+  min-width: 72px;
+  padding: 12px 8px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  backdrop-filter: blur(4px);
+}
+.tnstack-countdown__num {
+  display: block;
+  font-size: 2em;
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.tnstack-countdown__lbl {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.7em;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.8;
+}

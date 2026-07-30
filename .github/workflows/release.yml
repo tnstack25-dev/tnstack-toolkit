@@ -1,0 +1,51 @@
+name: Build WordPress plugin release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Validate tag and plugin version
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag_version="${GITHUB_REF_NAME#v}"
+          plugin_version="$(sed -n 's/^[[:space:]]*\\*[[:space:]]Version:[[:space:]]*//p' tnstack-toolkit.php | head -n 1 | tr -d '\\r')"
+          if [[ "$tag_version" != "$plugin_version" ]]; then
+            echo "Tag version $tag_version does not match plugin version $plugin_version."
+            exit 1
+          fi
+
+      - name: Build installable ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/tnstack-toolkit
+          rsync -a \
+            --exclude ".git/" \
+            --exclude ".github/" \
+            --exclude "build/" \
+            ./ build/tnstack-toolkit/
+          cd build
+          zip -qr tnstack-toolkit.zip tnstack-toolkit
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            "build/tnstack-toolkit.zip#Installable WordPress plugin" \
+            --title "TNStack Toolkit $GITHUB_REF_NAME" \
+            --generate-notes

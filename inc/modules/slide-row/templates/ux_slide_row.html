@@ -1,0 +1,27 @@
+<div
+	id="{{:: shortcode.$id }}"
+	class="row slider slide-row row-slider
+	row-{{ shortcode.options.style }}
+	align-{{ shortcode.options.vAlign }}
+	align-{{ shortcode.options.hAlign }}
+	large-columns-{{ shortcode.options.columns || 1 }}
+	medium-columns-{{ shortcode.options.columns > 3 ? 3 : (shortcode.options.columns || 1) }}
+	small-columns-{{ shortcode.options.columns > 2 ? 2 : (shortcode.options.columns || 1) }}
+	slider-nav-{{ shortcode.options.navStyle }}
+	slider-nav-{{ shortcode.options.navColor }}
+	slider-nav-{{ shortcode.options.navSize }}
+	slider-nav-{{ shortcode.options.navPos }}
+	slider-nav-dots-{{ shortcode.options.bulletStyle }}
+	slider-style-{{ shortcode.options.sliderStyle }}
+	{{ shortcode.options.class }}
+	{{ shortcode.options.visibility }}"
+	ng-class="{'slider-show-nav': shortcode.options.hideNav === 'true'}">
+
+	<content></content>
+
+	<style scope="scope">
+		#{{:: shortcode.$id }} .flickity-slider > .col {
+			max-width: {{ shortcode.options.slideWidth }} !important;
+		}
+	</style>
+</div>

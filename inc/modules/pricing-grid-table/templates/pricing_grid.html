@@ -1,0 +1,19 @@
+<div
+	id="{{:: shortcode.$id }}"
+	class="pricing-grid-table pricing-grid-table--builder {{ shortcode.options.class }} {{ shortcode.options.visibility }}"
+	ng-class="{
+		'pricing-grid-table--stack': shortcode.options.mobile_layout === 'stack',
+		'pricing-grid-table--scroll': shortcode.options.mobile_layout !== 'stack'
+	}"
+	ng-style="{
+		'--pricing-cols': shortcode.options.columns || 3,
+		'--pricing-gap': (shortcode.options.gap || 0) + 'px',
+		'--pricing-radius': (shortcode.options.border_radius || 0) + 'px',
+		'--pricing-padding': (shortcode.options.cell_padding || 16) + 'px'
+	}">
+	<div class="pricing-grid-table__outer">
+		<div class="pricing-grid-table__grid">
+			<content></content>
+		</div>
+	</div>
+</div>
