@@ -57,8 +57,8 @@ final class TNStack_Core_Performance_Dashboard {
 			return;
 		}
 
-		if ( ! current_user_can( 'manage_options' ) ) {
-			return;
+		if ( ! current_user_can( TNStack_Account_Permissions::MANAGE_CAP ) ) {
+			wp_die( esc_html__( 'Bạn không có quyền sửa cài đặt tối ưu.', 'tnstack-toolkit' ), '', array( 'response' => 403 ) );
 		}
 
 		check_admin_referer( 'tnstack_core_performance_settings', 'tnstack_core_performance_nonce' );
@@ -71,6 +71,11 @@ final class TNStack_Core_Performance_Dashboard {
 				if ( ! isset( $input[ $group ] ) || ! is_array( $input[ $group ] ) ) {
 					$input[ $group ] = $values;
 				}
+			}
+
+			// WAF and malware settings are managed on their dedicated page.
+			foreach ( array( 'waf_enabled', 'waf_mode', 'waf_allowlist', 'malware_monitor', 'malware_email_alert', 'malware_scan_frequency', 'malware_max_file_size_mb' ) as $key ) {
+				$input['security'][ $key ] = $current['security'][ $key ];
 			}
 
 			tnstack_core_optimization_update_settings( $input );
@@ -105,7 +110,7 @@ final class TNStack_Core_Performance_Dashboard {
 	 * Handle the clear-cache action.
 	 */
 	public static function handle_flush_cache() {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( TNStack_Account_Permissions::MANAGE_CAP ) ) {
 			wp_die( esc_html__( 'Bạn không có quyền xóa cache.', 'tnstack-toolkit' ), '', array( 'response' => 403 ) );
 		}
 
@@ -152,7 +157,7 @@ final class TNStack_Core_Performance_Dashboard {
 	 * @param WP_Admin_Bar $admin_bar Admin bar instance.
 	 */
 	public static function register_admin_bar( $admin_bar ) {
-		if ( ! current_user_can( 'manage_options' ) || ! is_admin_bar_showing() ) {
+		if ( ! current_user_can( TNStack_Account_Permissions::ACCESS_CAP ) || ! is_admin_bar_showing() ) {
 			return;
 		}
 
@@ -208,7 +213,7 @@ final class TNStack_Core_Performance_Dashboard {
 	 * Render the dashboard.
 	 */
 	public static function render_page() {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( TNStack_Account_Permissions::ACCESS_CAP ) ) {
 			wp_die( esc_html__( 'Bạn không có quyền truy cập trang này.', 'tnstack-toolkit' ), '', array( 'response' => 403 ) );
 		}
 
@@ -225,7 +230,7 @@ final class TNStack_Core_Performance_Dashboard {
 			? Template_Performance_Cache::settings()
 			: array(
 				'enable_page_cache' => 0,
-				'cache_ttl'         => 3600,
+				'cache_ttl'         => 604800,
 				'purge_mode'        => 'selective',
 				'max_cache_files'   => 5000,
 			);
@@ -332,9 +337,9 @@ final class TNStack_Core_Performance_Dashboard {
 								<tr>
 									<th scope="row"><label for="cache_ttl"><?php esc_html_e( 'Thời gian sống', 'tnstack-toolkit' ); ?></label></th>
 									<td>
-										<input type="number" id="cache_ttl" name="cache_ttl" min="300" max="86400" step="300" value="<?php echo esc_attr( (int) ( $cache_settings['cache_ttl'] ?? 3600 ) ); ?>">
+										<input type="number" id="cache_ttl" name="cache_ttl" min="300" max="604800" step="300" value="<?php echo esc_attr( (int) ( $cache_settings['cache_ttl'] ?? 604800 ) ); ?>">
 										<span><?php esc_html_e( 'giây', 'tnstack-toolkit' ); ?></span>
-										<p class="description"><?php esc_html_e( 'Cache hết hạn theo TTL; cron dọn tệp cũ mỗi giờ. Đổi theme/Customizer vẫn xóa toàn bộ.', 'tnstack-toolkit' ); ?></p>
+										<p class="description"><?php esc_html_e( 'Mặc định 604.800 giây (7 ngày), tối đa 7 ngày. Cron dọn tệp hết hạn mỗi giờ; đổi theme/Customizer vẫn xóa toàn bộ.', 'tnstack-toolkit' ); ?></p>
 									</td>
 								</tr>
 								<tr>
@@ -479,6 +484,7 @@ final class TNStack_Core_Performance_Dashboard {
 									</tr>
 								</table>
 							</div>
+
 						<?php endif; ?>
 					</section>
 				<?php endif; ?>
@@ -507,7 +513,8 @@ final class TNStack_Core_Performance_Dashboard {
 
 		$exclude = array_merge(
 			tnstack_core_optimization_meta_keys()['numeric'],
-			tnstack_core_optimization_meta_keys()['string']
+			tnstack_core_optimization_meta_keys()['string'],
+			array( 'waf_enabled', 'malware_monitor', 'malware_email_alert' )
 		);
 		$count   = 0;
 
@@ -530,7 +537,7 @@ final class TNStack_Core_Performance_Dashboard {
 		$descriptions = array(
 			'core'     => __( 'Giảm tải WordPress core và theme Flatsome Child: gỡ asset thừa, tối ưu JS/CSS/ảnh cho frontend.', 'tnstack-toolkit' ),
 			'admin'    => __( 'Tăng tốc wp-admin: giảm request cập nhật, heartbeat và asset plugin không cần thiết.', 'tnstack-toolkit' ),
-			'security' => __( 'Bảo mật production: chặn xmlrpc, REST, brute-force, request độc hại và CAPTCHA trên wp-login.php.', 'tnstack-toolkit' ),
+			'security' => __( 'Hardening WordPress: chặn XML-RPC/REST, brute-force và CAPTCHA trên wp-login.php.', 'tnstack-toolkit' ),
 		);
 
 		return $descriptions[ $tab ] ?? '';

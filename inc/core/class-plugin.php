@@ -70,6 +70,8 @@ final class TNStack_Plugin {
 
 		$this->booted = true;
 		$this->load_foundation();
+		TNStack_Account_Permissions::boot();
+		TNStack_Module_Manager::load_early( array( 'performance' ) );
 		TNStack_GitHub_Updater::boot();
 		add_action( 'init', array( $this, 'load_textdomain' ), -10000 );
 		add_action( 'init', array( $this, 'boot_modules' ), -9000 );
@@ -99,6 +101,7 @@ final class TNStack_Plugin {
 		require_once $base . 'core/helpers.php';
 		require_once $base . 'core/module-settings.php';
 		require_once $base . 'core/site-settings.php';
+		require_once $base . 'core/account-permissions.php';
 		require_once $base . 'core/class-module-manager.php';
 		require_once $base . 'core/class-github-updater.php';
 		require_once $base . 'core/assets.php';
@@ -138,7 +141,7 @@ final class TNStack_Plugin {
 	 * Show isolated module errors to administrators.
 	 */
 	public function render_module_error_notice() {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( TNStack_Account_Permissions::MANAGE_CAP ) ) {
 			return;
 		}
 

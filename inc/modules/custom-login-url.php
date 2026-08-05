@@ -8,6 +8,7 @@
 defined( 'ABSPATH' ) || exit;
 
 add_action( 'init', 'tnstack_custom_login_route_request', -999 );
+add_action( 'init', 'tnstack_custom_login_block_default_admin', -998 );
 add_action( 'login_init', 'tnstack_custom_login_block_default_url', -999 );
 add_filter( 'site_url', 'tnstack_custom_login_filter_site_url', 10, 4 );
 add_filter( 'network_site_url', 'tnstack_custom_login_filter_network_site_url', 10, 3 );
@@ -222,6 +223,63 @@ function tnstack_custom_login_route_request() {
 }
 
 /**
+ * Return the current request path relative to the WordPress installation URL.
+ *
+ * @return string
+ */
+function tnstack_custom_login_admin_relative_path() {
+	$request_path = wp_parse_url( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ), PHP_URL_PATH );
+	$site_path    = wp_parse_url( site_url( '/' ), PHP_URL_PATH );
+	$request_path = trim( rawurldecode( (string) $request_path ), '/' );
+	$site_path    = trim( rawurldecode( (string) $site_path ), '/' );
+
+	if ( '' !== $site_path ) {
+		if ( 0 !== strpos( $request_path, $site_path . '/' ) ) {
+			return '';
+		}
+		$request_path = substr( $request_path, strlen( $site_path ) + 1 );
+	}
+
+	return trim( $request_path, '/' );
+}
+
+/**
+ * Block the default admin path for visitors when a custom login URL is active.
+ * Frontend AJAX and unauthenticated admin-post handlers remain available.
+ */
+function tnstack_custom_login_block_default_admin() {
+	if ( ! tnstack_custom_login_is_enabled() || is_user_logged_in() ) {
+		return;
+	}
+
+	if ( ( defined( 'WP_CLI' ) && WP_CLI ) || wp_doing_ajax() || wp_doing_cron() ) {
+		return;
+	}
+
+	$path = tnstack_custom_login_admin_relative_path();
+	if ( 'wp-admin' !== $path && 0 !== strpos( $path, 'wp-admin/' ) ) {
+		return;
+	}
+
+	if ( in_array( $path, array( 'wp-admin/admin-ajax.php', 'wp-admin/admin-post.php' ), true ) ) {
+		return;
+	}
+
+	tnstack_custom_login_deny_404();
+}
+
+/** Send a generic 404 response without revealing the login URL. */
+function tnstack_custom_login_deny_404() {
+	status_header( 404 );
+	nocache_headers();
+	wp_die(
+		esc_html__( 'Không tìm thấy trang.', 'tnstack-toolkit' ),
+		esc_html__( 'Không tìm thấy', 'tnstack-toolkit' ),
+		array( 'response' => 404 )
+	);
+}
+
+/**
  * Return a generic 404 for direct requests to wp-login.php.
  */
 function tnstack_custom_login_block_default_url() {
@@ -233,20 +291,14 @@ function tnstack_custom_login_block_default_url() {
 		return;
 	}
 
-	status_header( 404 );
-	nocache_headers();
-	wp_die(
-		esc_html__( 'Không tìm thấy trang.', 'tnstack-toolkit' ),
-		esc_html__( 'Không tìm thấy', 'tnstack-toolkit' ),
-		array( 'response' => 404 )
-	);
+	tnstack_custom_login_deny_404();
 }
 
 /**
  * Render module settings.
  */
 function tnstack_custom_login_render_admin() {
-	if ( ! current_user_can( 'manage_options' ) ) {
+	if ( ! current_user_can( TNStack_Account_Permissions::MANAGE_CAP ) ) {
 		return;
 	}
 
@@ -323,7 +375,7 @@ function tnstack_custom_login_render_admin() {
 								<strong><?php esc_html_e( 'URL đăng nhập hiện tại:', 'tnstack-toolkit' ); ?></strong>
 								<a href="<?php echo esc_url( $login_url ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html( $login_url ); ?></a>
 							</p>
-							<p><?php esc_html_e( 'Hãy lưu URL này trước khi đăng xuất. wp-login.php sẽ trả về lỗi 404.', 'tnstack-toolkit' ); ?></p>
+							<p><?php esc_html_e( 'Hãy lưu URL này trước khi đăng xuất. wp-login.php và wp-admin sẽ trả về lỗi 404 cho khách chưa đăng nhập.', 'tnstack-toolkit' ); ?></p>
 						</div>
 					</div>
 				<?php endif; ?>

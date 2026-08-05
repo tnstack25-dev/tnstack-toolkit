@@ -200,6 +200,47 @@
   font-size: 14px;
 }
 
+.fcp-security-panel {
+  margin-top: 24px;
+  padding: 20px;
+  border: 1px solid #dcdcde;
+  border-radius: 8px;
+  background: #f9fafb;
+}
+
+.fcp-security-panel h3,
+.fcp-security-panel h4 {
+  margin-top: 0;
+}
+
+.fcp-security-table-wrap {
+  overflow-x: auto;
+}
+
+.fcp-security-table code {
+  white-space: nowrap;
+}
+
+.fcp-severity {
+  display: inline-block;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.fcp-severity--critical,
+.fcp-severity--high {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.fcp-severity--medium {
+  background: #fef3c7;
+  color: #92400e;
+}
+
 @media (max-width: 960px) {
   .fcp-performance-grid,
   .fcp-stats,

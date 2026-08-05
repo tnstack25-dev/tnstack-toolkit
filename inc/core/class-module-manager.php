@@ -29,6 +29,28 @@ final class TNStack_Module_Manager {
 	private static $errors = array();
 
 	/**
+	 * Boot selected enabled modules before init.
+	 *
+	 * This is primarily used by the performance module so full-page cache hits
+	 * can return before themes and most init callbacks are loaded.
+	 *
+	 * @param string[] $slugs Module slugs.
+	 */
+	public static function load_early( $slugs ) {
+		$config = tnstack_core_config();
+
+		foreach ( array_unique( array_map( 'sanitize_key', (array) $slugs ) ) as $slug ) {
+			$definition = TNStack_Module_Manifest::get( $slug );
+
+			if ( ! $definition || ! self::is_enabled( $slug, $definition, $config ) ) {
+				continue;
+			}
+
+			self::boot( $slug, $definition['boot'] );
+		}
+	}
+
+	/**
 	 * Boot all enabled modules and project extensions.
 	 */
 	public static function load() {

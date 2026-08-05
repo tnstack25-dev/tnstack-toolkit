@@ -3,7 +3,7 @@ Contributors: tnstack
 Tags: performance, security, catalog, ux builder, wordpress toolkit
 Requires at least: 6.0
 Requires PHP: 7.4
-Stable tag: 2.2.2
+Stable tag: 2.3.0
 License: GPLv2 or later
 
 TNStack Toolkit cung cấp các module hiệu năng, bảo mật, nội dung, Slim Catalog
@@ -35,9 +35,24 @@ Repository mặc định: `tnstack25-dev/tnstack-toolkit`.
 
 1. Commit và push mã nguồn, bao gồm workflow trong `.github/workflows/release.yml`.
 2. Đảm bảo version trong `tnstack-toolkit.php` khớp với tag.
-3. Tạo và push tag, ví dụ: `git tag v2.2.2` rồi `git push origin v2.2.2`.
+3. Tạo và push tag, ví dụ: `git tag v2.3.0` rồi `git push origin v2.3.0`.
 4. GitHub Actions sẽ tạo Release và tải lên asset `tnstack-toolkit.zip`.
 5. Trong WordPress, mở TNStack Toolkit → Plugin & Hệ thống để kiểm tra cập nhật.
+
+== Phân quyền tài khoản ==
+
+Trang TNStack Toolkit → Phân quyền tài khoản cho phép cấp độc lập các quyền:
+
+* Truy cập TNStack Toolkit.
+* Xem trang WAF và giám sát mã độc.
+* Sửa cài đặt Toolkit.
+* Quản lý hoặc cài đặt plugin.
+* Quản lý giao diện.
+* Sửa tệp plugin và giao diện.
+
+Khi chưa lưu bảng phân quyền, các quản trị viên tiếp tục sử dụng Toolkit như bình thường.
+Sau khi lưu, chỉ tài khoản được chỉ định mới có quyền tương ứng. Plugin luôn yêu cầu giữ
+ít nhất một quản trị viên có quyền truy cập và sửa cài đặt để tránh tự khóa.
 
 == Frequently Asked Questions ==
 
@@ -52,6 +67,19 @@ Lỗi được cô lập ở module tương ứng. Các module còn lại tiếp
 quản trị viên nhận được thông báo để kiểm tra.
 
 == Changelog ==
+
+= 2.3.0 =
+
+* Khởi động page cache sớm hơn, sửa thống kê cache khi ghi đè và giảm request CSS nền.
+* Chỉ preconnect Google Fonts khi thực sự sử dụng và tôn trọng tối ưu ảnh gốc của WordPress.
+* Thêm WAF với chế độ chặn/theo dõi, allowlist và nhật ký sự kiện có giới hạn.
+* Thêm giám sát mã độc theo lịch, checksum WordPress core, baseline file và cảnh báo email.
+* Tách WAF và giám sát mã độc sang trang quản trị riêng.
+* Sửa Custom Login URL để chặn wp-admin cho khách chưa đăng nhập mà vẫn giữ admin-ajax/admin-post.
+* Tăng TTL cache trang mặc định và giới hạn tối đa lên 7 ngày.
+* Chỉ giữ lại Pricing Grid Table, FAQ Accordion và Countdown Timer trong nhóm UX Builder.
+* Thêm phân quyền theo tài khoản cho Toolkit, WAF/mã độc, plugin, giao diện và trình sửa tệp.
+* Sửa xung đột phân quyền plugin/giao diện với WP Site Monitor Agent và bổ sung quyền vô hiệu hóa, khôi phục plugin/giao diện.
 
 = 2.2.2 =
 

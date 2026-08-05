@@ -52,7 +52,7 @@ function tnstack_toolkit_register_module_pages() {
 			$parent,
 			$page['title'],
 			$page['title'],
-			'manage_options',
+			TNStack_Account_Permissions::MANAGE_CAP,
 			'tnstack-mod-' . $slug,
 			$page['callback']
 		);
@@ -70,7 +70,7 @@ function tnstack_toolkit_enqueue_module_settings_assets( $hook_suffix ) {
 	unset( $hook_suffix );
 
 	$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
-	if ( ! in_array( $page, array( 'tnstack-mod-floating-contact', 'tnstack-mod-table-of-contents', 'tnstack-mod-custom-login-url', 'tnstack-mod-smtp-email', 'tnstack-github-updates', 'tnstack-export-import' ), true ) ) {
+	if ( ! in_array( $page, array( 'tnstack-mod-floating-contact', 'tnstack-mod-table-of-contents', 'tnstack-mod-custom-login-url', 'tnstack-mod-smtp-email', 'tnstack-github-updates', 'tnstack-export-import', TNStack_Account_Permissions::PAGE_SLUG ), true ) ) {
 		return;
 	}
 

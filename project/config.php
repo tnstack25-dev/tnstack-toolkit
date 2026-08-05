@@ -15,10 +15,9 @@ return array(
 		'webp-converter'         => true,
 		'disable-comments'     => true,
 		'center-image'         => true,
-		'ux-image-border-radius' => true,
-		'background-gradient'  => true,
 		'pricing-grid-table'   => true,
-		'slide-row'            => true,
+		'faq-accordion'        => true,
+		'countdown-timer'      => true,
 		'slim-catalog'         => true,
 	),
 

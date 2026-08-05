@@ -121,6 +121,7 @@
 
 .ttk-settings__card {
 	margin-bottom: 20px;
+	padding: 20px;
 	overflow: hidden;
 	border: 1px solid var(--ttk-admin-border);
 	border-radius: var(--ttk-admin-radius);

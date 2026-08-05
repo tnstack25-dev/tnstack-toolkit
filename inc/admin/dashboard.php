@@ -54,8 +54,8 @@ final class TNStack_Toolkit_Features_Dashboard {
 			return;
 		}
 
-		if ( ! current_user_can( 'manage_options' ) ) {
-			return;
+		if ( ! current_user_can( TNStack_Account_Permissions::MANAGE_CAP ) ) {
+			wp_die( esc_html__( 'Bạn không có quyền sửa cài đặt Toolkit.', 'tnstack-toolkit' ), '', array( 'response' => 403 ) );
 		}
 
 		check_admin_referer( 'tnstack_toolkit_features_settings', 'tnstack_toolkit_features_nonce' );
@@ -151,7 +151,7 @@ final class TNStack_Toolkit_Features_Dashboard {
 	 * Render the features dashboard.
 	 */
 	public static function render_page() {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( TNStack_Account_Permissions::ACCESS_CAP ) ) {
 			wp_die( esc_html__( 'Bạn không có quyền truy cập trang này.', 'tnstack-toolkit' ), '', array( 'response' => 403 ) );
 		}
 

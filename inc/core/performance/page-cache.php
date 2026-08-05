@@ -16,7 +16,7 @@ final class Template_Performance_Cache {
 	const OPTION       = 'template_performance_settings';
 	const STATS_OPTION = 'template_performance_cache_stats';
 	const QUEUE_KEY    = 'template_performance_purge_queue';
-	const TTL          = 3600;
+	const TTL          = 604800;
 	const VERSION      = '1.0.0';
 
 	/**
@@ -39,7 +39,7 @@ final class Template_Performance_Cache {
 		$settings = wp_parse_args( is_array( $settings ) ? $settings : array(), self::defaults() );
 
 		$settings['enable_page_cache'] = ! empty( $settings['enable_page_cache'] ) ? 1 : 0;
-		$settings['cache_ttl']         = max( 300, min( DAY_IN_SECONDS, absint( $settings['cache_ttl'] ) ) );
+		$settings['cache_ttl']         = max( 300, min( WEEK_IN_SECONDS, absint( $settings['cache_ttl'] ) ) );
 		$settings['purge_mode']        = in_array( $settings['purge_mode'], array( 'selective', 'full' ), true )
 			? $settings['purge_mode']
 			: 'selective';
@@ -103,7 +103,7 @@ final class Template_Performance_Cache {
 		$current = self::settings();
 		$updated = array(
 			'enable_page_cache' => ! empty( $settings['enable_page_cache'] ) ? 1 : 0,
-			'cache_ttl'         => isset( $settings['cache_ttl'] ) ? max( 300, min( DAY_IN_SECONDS, absint( $settings['cache_ttl'] ) ) ) : $current['cache_ttl'],
+			'cache_ttl'         => isset( $settings['cache_ttl'] ) ? max( 300, min( WEEK_IN_SECONDS, absint( $settings['cache_ttl'] ) ) ) : $current['cache_ttl'],
 			'purge_mode'        => isset( $settings['purge_mode'] ) && in_array( $settings['purge_mode'], array( 'selective', 'full' ), true )
 				? $settings['purge_mode']
 				: $current['purge_mode'],
@@ -246,7 +246,7 @@ final class Template_Performance_Cache {
 			return true;
 		}
 
-		if ( function_exists( 'is_cart' ) && ( is_cart() || is_checkout() || is_account_page() ) ) {
+		if ( did_action( 'wp' ) && function_exists( 'is_cart' ) && ( is_cart() || is_checkout() || is_account_page() ) ) {
 			return true;
 		}
 
@@ -514,6 +514,9 @@ final class Template_Performance_Cache {
 
 		$file = self::cache_file_for( self::request_host(), $uri );
 		$dir  = dirname( $file );
+		$file_existed = is_file( $file );
+		$previous_size = $file_existed ? filesize( $file ) : 0;
+		$previous_size = false !== $previous_size ? (int) $previous_size : 0;
 
 		if ( function_exists( 'wp_mkdir_p' ) ) {
 			wp_mkdir_p( $dir );
@@ -528,7 +531,11 @@ final class Template_Performance_Cache {
 		$written = file_put_contents( $file, $html, LOCK_EX );
 
 		if ( false !== $written ) {
-			self::adjust_stats_meta( 1, (int) $written, (int) filemtime( $file ) );
+			self::adjust_stats_meta(
+				$file_existed ? 0 : 1,
+				(int) $written - $previous_size,
+				(int) filemtime( $file )
+			);
 		}
 
 		if ( ! headers_sent() ) {

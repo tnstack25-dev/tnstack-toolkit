@@ -53,6 +53,7 @@ final class TNStack_Plugin_Lifecycle {
 	 * Deactivate the plugin.
 	 */
 	public static function deactivate() {
+		wp_clear_scheduled_hook( 'tnstack_malware_monitor_scan' );
 		flush_rewrite_rules();
 	}
 

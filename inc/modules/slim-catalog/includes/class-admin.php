@@ -12,6 +12,7 @@ class Slim_Catalog_Admin {
 	public static function init() {
 		add_action( 'admin_menu', array( __CLASS__, 'register_menu' ) );
 		add_action( 'admin_init', array( __CLASS__, 'register_settings' ) );
+		add_filter( 'option_page_capability_slim_catalog_settings_group', array( __CLASS__, 'settings_capability' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
 		add_filter( 'manage_' . Slim_Catalog_Post_Types::POST_TYPE . '_posts_columns', array( __CLASS__, 'columns' ) );
 		add_action( 'manage_' . Slim_Catalog_Post_Types::POST_TYPE . '_posts_custom_column', array( __CLASS__, 'column_content' ), 10, 2 );
@@ -22,10 +23,14 @@ class Slim_Catalog_Admin {
 			'edit.php?post_type=' . Slim_Catalog_Post_Types::POST_TYPE,
 			__( 'Settings', 'slim-catalog' ),
 			__( 'Settings', 'slim-catalog' ),
-			'manage_options',
+			TNStack_Account_Permissions::MANAGE_CAP,
 			'slim-catalog-settings',
 			array( __CLASS__, 'render_settings_page' )
 		);
+	}
+
+	public static function settings_capability() {
+		return TNStack_Account_Permissions::MANAGE_CAP;
 	}
 
 	public static function register_settings() {

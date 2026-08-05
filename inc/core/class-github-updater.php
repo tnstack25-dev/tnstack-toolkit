@@ -160,7 +160,7 @@ final class TNStack_GitHub_Updater {
 			TNStack_Toolkit_Features_Dashboard::PAGE_SLUG,
 			__( 'Plugin & Hệ thống', 'tnstack-toolkit' ),
 			__( 'Plugin & Hệ thống', 'tnstack-toolkit' ),
-			'manage_options',
+			TNStack_Account_Permissions::ACCESS_CAP,
 			'tnstack-github-updates',
 			array( __CLASS__, 'render_admin_page' )
 		);
@@ -170,7 +170,7 @@ final class TNStack_GitHub_Updater {
 	 * Force WordPress and GitHub release caches to refresh.
 	 */
 	public static function handle_check() {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( TNStack_Account_Permissions::MANAGE_CAP ) ) {
 			wp_die( esc_html__( 'Bạn không có quyền thực hiện thao tác này.', 'tnstack-toolkit' ), '', array( 'response' => 403 ) );
 		}
 
@@ -191,7 +191,7 @@ final class TNStack_GitHub_Updater {
 	 * Render GitHub updater settings and connection state.
 	 */
 	public static function render_admin_page() {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( TNStack_Account_Permissions::ACCESS_CAP ) ) {
 			return;
 		}
 

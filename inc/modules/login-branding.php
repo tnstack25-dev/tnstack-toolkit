@@ -24,7 +24,7 @@ function tnstack_login_settings() {
 }
 
 function tnstack_login_render_admin() {
-	if ( ! current_user_can( 'manage_options' ) ) {
+	if ( ! current_user_can( TNStack_Account_Permissions::MANAGE_CAP ) ) {
 		return;
 	}
 

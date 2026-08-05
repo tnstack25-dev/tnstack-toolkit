@@ -27,7 +27,7 @@ function tnstack_smtp_settings() {
 }
 
 function tnstack_smtp_render_admin() {
-	if ( ! current_user_can( 'manage_options' ) ) {
+	if ( ! current_user_can( TNStack_Account_Permissions::MANAGE_CAP ) ) {
 		return;
 	}
 

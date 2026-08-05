@@ -21,7 +21,7 @@ function tnstack_maintenance_settings() {
 }
 
 function tnstack_maintenance_render_admin() {
-	if ( ! current_user_can( 'manage_options' ) ) {
+	if ( ! current_user_can( TNStack_Account_Permissions::MANAGE_CAP ) ) {
 		return;
 	}
 
@@ -61,7 +61,7 @@ function tnstack_maintenance_mode_redirect() {
 		return;
 	}
 
-	if ( current_user_can( 'manage_options' ) ) {
+	if ( current_user_can( TNStack_Account_Permissions::ACCESS_CAP ) ) {
 		return;
 	}
 

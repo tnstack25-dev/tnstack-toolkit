@@ -19,11 +19,15 @@ function tnstack_core_optimization_meta_keys() {
 			'login_lockout_minutes',
 			'ip_login_max_attempts',
 			'ip_lockout_minutes',
+			'malware_max_file_size_mb',
 		),
 		'string'  => array(
 			'captcha_provider',
 			'captcha_site_key',
 			'captcha_secret_key',
+			'waf_mode',
+			'waf_allowlist',
+			'malware_scan_frequency',
 		),
 	);
 }
@@ -59,13 +63,20 @@ function tnstack_core_optimization_defaults() {
 			'remove_dashboard_widgets'   => 1,
 		),
 		'security' => array(
+			'waf_enabled'                   => 1,
+			'waf_mode'                      => 'block',
+			'waf_allowlist'                 => '',
+			'malware_monitor'               => 1,
+			'malware_email_alert'           => 1,
+			'malware_scan_frequency'        => 'daily',
+			'malware_max_file_size_mb'      => 5,
 			'remove_generator'              => 1,
 			'block_author_scan'             => 1,
 			'disable_rest_users'            => 1,
 			'restrict_rest_api'             => 1,
 			'allow_woocommerce_rest'        => 1,
 			'block_xmlrpc'                  => 1,
-			'block_suspicious_requests'     => 1,
+			'block_suspicious_requests'     => 0,
 			'block_sensitive_files'         => 1,
 			'security_headers'              => 1,
 			'hsts_header'                     => 1,
@@ -150,6 +161,10 @@ function tnstack_core_optimization_settings() {
 	$merged['security']['login_lockout_minutes']    = min( 240, max( 5, (int) $merged['security']['login_lockout_minutes'] ) );
 	$merged['security']['ip_login_max_attempts']   = min( 100, max( 5, (int) $merged['security']['ip_login_max_attempts'] ) );
 	$merged['security']['ip_lockout_minutes']      = min( 1440, max( 15, (int) $merged['security']['ip_lockout_minutes'] ) );
+	$merged['security']['malware_max_file_size_mb'] = min( 20, max( 1, (int) $merged['security']['malware_max_file_size_mb'] ) );
+	$merged['security']['waf_mode']                 = in_array( $merged['security']['waf_mode'], array( 'block', 'monitor' ), true ) ? $merged['security']['waf_mode'] : 'block';
+	$merged['security']['malware_scan_frequency']   = in_array( $merged['security']['malware_scan_frequency'], array( 'daily', 'weekly' ), true ) ? $merged['security']['malware_scan_frequency'] : 'daily';
+	$merged['security']['waf_allowlist']            = sanitize_textarea_field( (string) $merged['security']['waf_allowlist'] );
 	$merged['security']['captcha_provider']        = in_array( $merged['security']['captcha_provider'], tnstack_core_security_captcha_providers(), true )
 		? $merged['security']['captcha_provider']
 		: 'math';
@@ -232,6 +247,23 @@ function tnstack_core_optimization_sanitize_settings( $input ) {
 					continue;
 				}
 
+				if ( 'waf_mode' === $key ) {
+					$mode = isset( $group_input[ $key ] ) ? sanitize_key( $group_input[ $key ] ) : 'block';
+					$sanitized[ $group ][ $key ] = in_array( $mode, array( 'block', 'monitor' ), true ) ? $mode : 'block';
+					continue;
+				}
+
+				if ( 'malware_scan_frequency' === $key ) {
+					$frequency = isset( $group_input[ $key ] ) ? sanitize_key( $group_input[ $key ] ) : 'daily';
+					$sanitized[ $group ][ $key ] = in_array( $frequency, array( 'daily', 'weekly' ), true ) ? $frequency : 'daily';
+					continue;
+				}
+
+				if ( 'waf_allowlist' === $key ) {
+					$sanitized[ $group ][ $key ] = isset( $group_input[ $key ] ) ? sanitize_textarea_field( $group_input[ $key ] ) : '';
+					continue;
+				}
+
 				$sanitized[ $group ][ $key ] = isset( $group_input[ $key ] ) ? sanitize_text_field( $group_input[ $key ] ) : '';
 				continue;
 			}
@@ -246,6 +278,7 @@ function tnstack_core_optimization_sanitize_settings( $input ) {
 	$sanitized['security']['login_lockout_minutes'] = min( 240, max( 5, (int) $sanitized['security']['login_lockout_minutes'] ) );
 	$sanitized['security']['ip_login_max_attempts'] = min( 100, max( 5, (int) $sanitized['security']['ip_login_max_attempts'] ) );
 	$sanitized['security']['ip_lockout_minutes']    = min( 1440, max( 15, (int) $sanitized['security']['ip_lockout_minutes'] ) );
+	$sanitized['security']['malware_max_file_size_mb'] = min( 20, max( 1, (int) $sanitized['security']['malware_max_file_size_mb'] ) );
 
 	return $sanitized;
 }
@@ -295,7 +328,6 @@ function tnstack_core_optimization_field_labels() {
 			'restrict_rest_api'             => __( 'Chặn REST API cho khách chưa đăng nhập', 'tnstack-toolkit' ),
 			'allow_woocommerce_rest'        => __( 'Cho phép REST WooCommerce (nếu có shop)', 'tnstack-toolkit' ),
 			'block_xmlrpc'                  => __( 'Chặn hoàn toàn xmlrpc.php', 'tnstack-toolkit' ),
-			'block_suspicious_requests'     => __( 'Chặn request SQLi/XSS phổ biến', 'tnstack-toolkit' ),
 			'block_sensitive_files'         => __( 'Chặn truy cập readme, license, .env', 'tnstack-toolkit' ),
 			'security_headers'              => __( 'Security headers (X-Frame, nosniff…)', 'tnstack-toolkit' ),
 			'hsts_header'                   => __( 'HSTS khi dùng HTTPS', 'tnstack-toolkit' ),

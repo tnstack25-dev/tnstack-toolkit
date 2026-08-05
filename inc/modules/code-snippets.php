@@ -69,7 +69,7 @@ function tnstack_snippets_assets() {
 }
 
 function tnstack_snippets_render_admin() {
-	if ( ! current_user_can( 'manage_options' ) ) {
+	if ( ! current_user_can( TNStack_Account_Permissions::MANAGE_CAP ) ) {
 		return;
 	}
 

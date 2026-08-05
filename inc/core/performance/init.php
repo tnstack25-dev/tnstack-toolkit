@@ -19,7 +19,7 @@ add_action( 'init', 'tnstack_core_performance_disable_bloat', 1 );
 add_action( 'wp_enqueue_scripts', 'tnstack_core_performance_optimize_assets', 999 );
 add_filter( 'script_loader_tag', 'tnstack_core_performance_defer_scripts', 10, 3 );
 add_filter( 'style_loader_tag', 'tnstack_core_performance_optimize_styles', 10, 4 );
-add_action( 'wp_head', 'tnstack_core_performance_resource_hints', 1 );
+add_filter( 'wp_resource_hints', 'tnstack_core_performance_resource_hints', 10, 2 );
 add_filter( 'wp_get_attachment_image_attributes', 'tnstack_core_performance_image_attrs', 10, 3 );
 add_filter( 'heartbeat_settings', 'tnstack_core_performance_heartbeat_settings' );
 add_filter( 'wp_revisions_to_keep', 'tnstack_core_performance_limit_revisions', 10, 2 );
@@ -118,13 +118,27 @@ function tnstack_core_performance_defer_scripts( $tag, $handle, $src ) {
 		return $tag;
 	}
 
-	$exclude = array( 'jquery', 'jquery-core', 'jquery-migrate' );
+	$exclude = apply_filters(
+		'tnstack_core_defer_script_exclusions',
+		array( 'jquery', 'jquery-core', 'jquery-migrate', 'customize-preview' )
+	);
 
 	if ( in_array( $handle, $exclude, true ) ) {
 		return $tag;
 	}
 
-	if ( false !== strpos( $tag, ' defer' ) || false !== strpos( $tag, ' async' ) ) {
+	global $wp_scripts;
+	$registered = $wp_scripts instanceof WP_Scripts && isset( $wp_scripts->registered[ $handle ] )
+		? $wp_scripts->registered[ $handle ]
+		: null;
+	$extra = $registered && is_array( $registered->extra ) ? $registered->extra : array();
+
+	// Inline code attached to a handle may depend on immediate execution.
+	if ( ! empty( $extra['before'] ) || ! empty( $extra['after'] ) ) {
+		return $tag;
+	}
+
+	if ( false !== strpos( $tag, ' defer' ) || false !== strpos( $tag, ' async' ) || false !== strpos( $tag, 'type="module"' ) ) {
 		return $tag;
 	}
 
@@ -146,7 +160,6 @@ function tnstack_core_performance_optimize_styles( $html, $handle, $href, $media
 
 	$async_handles = array(
 		'tnstack-core-pricing-grid',
-		'tnstack-core-slide-row',
 		'slim-catalog',
 		'contact-form-7',
 	);
@@ -162,17 +175,59 @@ function tnstack_core_performance_optimize_styles( $html, $handle, $href, $media
 }
 
 /**
- * Add connection hints for common third-party origins.
+ * Add connection hints only when Google Fonts is actually enqueued.
+ *
+ * @param array<int, string|array<string, string>> $urls          Hint URLs.
+ * @param string                                   $relation_type Hint relation type.
+ * @return array<int, string|array<string, string>>
  */
-function tnstack_core_performance_resource_hints() {
-	if ( ! tnstack_core_opt_enabled( 'core', 'resource_hints' ) ) {
-		return;
+function tnstack_core_performance_resource_hints( $urls, $relation_type ) {
+	if ( 'preconnect' !== $relation_type || ! tnstack_core_opt_enabled( 'core', 'resource_hints' ) ) {
+		return $urls;
 	}
 
-	echo '<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>' . "\n";
-	echo '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' . "\n";
-	echo '<link rel="dns-prefetch" href="//fonts.googleapis.com">' . "\n";
-	echo '<link rel="dns-prefetch" href="//fonts.gstatic.com">' . "\n";
+	global $wp_styles;
+
+	if ( ! $wp_styles instanceof WP_Styles ) {
+		return $urls;
+	}
+
+	$uses_google_fonts = false;
+	foreach ( $wp_styles->queue as $handle ) {
+		if ( empty( $wp_styles->registered[ $handle ]->src ) ) {
+			continue;
+		}
+
+		$src = (string) $wp_styles->registered[ $handle ]->src;
+		if ( false !== strpos( $src, 'fonts.googleapis.com' ) || false !== strpos( $src, 'fonts.gstatic.com' ) ) {
+			$uses_google_fonts = true;
+			break;
+		}
+	}
+
+	if ( ! $uses_google_fonts ) {
+		return $urls;
+	}
+
+	$origins = array(
+		'https://fonts.googleapis.com' => false,
+		'https://fonts.gstatic.com'    => true,
+	);
+
+	foreach ( $urls as $url ) {
+		$href = is_array( $url ) ? ( $url['href'] ?? '' ) : $url;
+		if ( array_key_exists( $href, $origins ) ) {
+			unset( $origins[ $href ] );
+		}
+	}
+
+	foreach ( $origins as $href => $crossorigin ) {
+		$urls[] = $crossorigin
+			? array( 'href' => $href, 'crossorigin' => 'anonymous' )
+			: $href;
+	}
+
+	return $urls;
 }
 
 /**
@@ -188,16 +243,23 @@ function tnstack_core_performance_image_attrs( $attr, $attachment, $size ) {
 		return $attr;
 	}
 
+	if ( empty( $attr['decoding'] ) ) {
+		$attr['decoding'] = 'async';
+	}
+
+	// Modern WordPress applies context-aware lazy loading and LCP priority.
+	if ( function_exists( 'wp_get_loading_optimization_attributes' ) ) {
+		return $attr;
+	}
+
 	static $first_content_image = true;
 
 	if ( $first_content_image ) {
 		$attr['loading']       = 'eager';
 		$attr['fetchpriority'] = 'high';
-		$attr['decoding']      = 'async';
 		$first_content_image   = false;
 	} elseif ( empty( $attr['loading'] ) ) {
-		$attr['loading']  = 'lazy';
-		$attr['decoding'] = 'async';
+		$attr['loading'] = 'lazy';
 	}
 
 	return $attr;

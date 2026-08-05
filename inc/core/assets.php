@@ -19,12 +19,20 @@ function tnstack_core_enqueue_assets() {
 		return;
 	}
 
-	wp_enqueue_style(
+	wp_register_style(
 		'tnstack-core-main',
-		tnstack_core_uri( 'assets/css/main.css' ),
+		false,
 		array(),
-		tnstack_core_asset_version( $css_path )
+		TNSTACK_CORE_VERSION
 	);
+	wp_enqueue_style( 'tnstack-core-main' );
+
+	// The base stylesheet is tiny; inline it to avoid a separate HTTP request.
+	// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+	$css = file_get_contents( $css_path );
+	if ( false !== $css && '' !== trim( $css ) ) {
+		wp_add_inline_style( 'tnstack-core-main', $css );
+	}
 
 	do_action( 'tnstack_core_enqueue_assets' );
 }

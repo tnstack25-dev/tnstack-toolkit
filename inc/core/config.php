@@ -113,7 +113,6 @@ function tnstack_core_apply_profile( $config ) {
 		'blog' => array(
 			'modules' => array(
 				'pricing-grid-table' => false,
-				'slide-row'          => false,
 				'slim-catalog'       => false,
 			),
 			'features' => array(
@@ -137,7 +136,6 @@ function tnstack_core_apply_profile( $config ) {
 		'corporate' => array(
 			'modules' => array(
 				'pricing-grid-table' => true,
-				'slide-row'          => false,
 			),
 		),
 	);

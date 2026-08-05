@@ -8,6 +8,11 @@
 defined( 'ABSPATH' ) || exit;
 
 require_once tnstack_core_path( '/inc/core/performance/security-login.php' );
+require_once tnstack_core_path( '/inc/core/performance/waf.php' );
+require_once tnstack_core_path( '/inc/core/performance/malware-monitor.php' );
+if ( is_admin() ) {
+	require_once tnstack_core_path( '/inc/core/performance/security-dashboard.php' );
+}
 
 if ( did_action( 'plugins_loaded' ) ) {
 	tnstack_core_security_early_blocks();
@@ -20,6 +25,10 @@ add_action( 'init', 'tnstack_core_security_boot', 1 );
  * Block high-risk endpoints before most WordPress logic runs.
  */
 function tnstack_core_security_early_blocks() {
+	if ( tnstack_core_opt_enabled( 'security', 'waf_enabled' ) ) {
+		TNStack_Core_WAF::inspect_request();
+	}
+
 	if ( tnstack_core_opt_enabled( 'security', 'block_xmlrpc' ) && tnstack_core_security_is_xmlrpc_request() ) {
 		tnstack_core_security_deny_request( 403 );
 	}
@@ -28,9 +37,6 @@ function tnstack_core_security_early_blocks() {
 		tnstack_core_security_block_sensitive_files();
 	}
 
-	if ( tnstack_core_opt_enabled( 'security', 'block_suspicious_requests' ) ) {
-		tnstack_core_security_block_suspicious_requests();
-	}
 }
 
 /**

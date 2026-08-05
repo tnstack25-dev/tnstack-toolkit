@@ -60,7 +60,7 @@ function tnstack_floating_contact_enqueue_assets()
 
 function tnstack_floating_contact_render_admin()
 {
-	if (!current_user_can('manage_options')) {
+	if ( ! current_user_can( TNStack_Account_Permissions::MANAGE_CAP ) ) {
 		return;
 	}
 

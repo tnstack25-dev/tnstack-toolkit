@@ -21,7 +21,7 @@ function tnstack_cookie_settings() {
 }
 
 function tnstack_cookie_render_admin() {
-	if ( ! current_user_can( 'manage_options' ) ) {
+	if ( ! current_user_can( TNStack_Account_Permissions::MANAGE_CAP ) ) {
 		return;
 	}
 	if ( isset( $_POST['tnstack_cookie_save'] ) ) {

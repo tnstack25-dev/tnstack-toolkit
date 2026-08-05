@@ -20,7 +20,7 @@ function tnstack_analytics_settings() {
 }
 
 function tnstack_analytics_render_admin() {
-	if ( ! current_user_can( 'manage_options' ) ) {
+	if ( ! current_user_can( TNStack_Account_Permissions::MANAGE_CAP ) ) {
 		return;
 	}
 

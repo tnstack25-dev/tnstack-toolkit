@@ -23,14 +23,14 @@ final class TNStack_Toolkit_Export_Import {
 			TNStack_Toolkit_Features_Dashboard::PAGE_SLUG,
 			__( 'Export / Import', 'tnstack-toolkit' ),
 			__( 'Export / Import', 'tnstack-toolkit' ),
-			'manage_options',
+			TNStack_Account_Permissions::MANAGE_CAP,
 			'tnstack-export-import',
 			array( __CLASS__, 'render_page' )
 		);
 	}
 
 	public static function handle_export() {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( TNStack_Account_Permissions::MANAGE_CAP ) ) {
 			wp_die( esc_html__( 'Unauthorized', 'tnstack-toolkit' ) );
 		}
 		check_admin_referer( 'tnstack_export' );
@@ -49,7 +49,7 @@ final class TNStack_Toolkit_Export_Import {
 	}
 
 	public static function handle_import() {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( TNStack_Account_Permissions::MANAGE_CAP ) ) {
 			wp_die( esc_html__( 'Unauthorized', 'tnstack-toolkit' ) );
 		}
 		check_admin_referer( 'tnstack_import' );
@@ -101,7 +101,7 @@ final class TNStack_Toolkit_Export_Import {
 	}
 
 	public static function render_page() {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( TNStack_Account_Permissions::MANAGE_CAP ) ) {
 			return;
 		}
 

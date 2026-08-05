@@ -57,7 +57,7 @@ function tnstack_toolkit_get_group_meta() {
 		),
 		'ux-builder'   => array(
 			'label'       => __( 'UX Builder', 'tnstack-toolkit' ),
-			'description' => __( 'Mở rộng Flatsome UX Builder với elements mới.', 'tnstack-toolkit' ),
+			'description' => __( 'Pricing Grid Table, FAQ Accordion và Countdown Timer.', 'tnstack-toolkit' ),
 			'color'       => '#7c3aed',
 		),
 		'content'      => array(

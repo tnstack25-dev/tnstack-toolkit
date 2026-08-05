@@ -1,7 +1,40 @@
 <?php
 
-if ( ! function_exists( 'tnstack_core_gradient_value' ) ) {
-	require_once tnstack_core_path( '/inc/modules/background-gradient/helpers.php' );
+function tnstack_core_pricing_grid_gradient_enabled( $atts, $prefix ) {
+	if ( ! isset( $atts[ $prefix . '_gradient' ] ) ) {
+		return false;
+	}
+
+	return in_array( $atts[ $prefix . '_gradient' ], array( 'true', '1', 1, true ), true );
+}
+
+function tnstack_core_pricing_grid_gradient_value( $atts, $prefix ) {
+	if ( ! tnstack_core_pricing_grid_gradient_enabled( $atts, $prefix ) ) {
+		return '';
+	}
+
+	$from = rawurldecode( (string) ( $atts[ $prefix . '_gradient_from' ] ?? '' ) );
+	$to   = rawurldecode( (string) ( $atts[ $prefix . '_gradient_to' ] ?? '' ) );
+	$from = trim( html_entity_decode( $from, ENT_QUOTES, 'UTF-8' ) );
+	$to   = trim( html_entity_decode( $to, ENT_QUOTES, 'UTF-8' ) );
+
+	if ( '' === $from || '' === $to ) {
+		return '';
+	}
+
+	$angle = isset( $atts[ $prefix . '_gradient_angle' ] ) ? (int) $atts[ $prefix . '_gradient_angle' ] : 135;
+
+	return sprintf( 'linear-gradient(%ddeg, %s, %s)', $angle, $from, $to );
+}
+
+function tnstack_core_pricing_grid_gradient_bg_style( $gradient ) {
+	return '' === $gradient ? '' : 'background:' . $gradient . ' !important;';
+}
+
+function tnstack_core_pricing_grid_gradient_text_style( $gradient ) {
+	return '' === $gradient
+		? ''
+		: 'background:' . $gradient . ' !important;-webkit-background-clip:text !important;-webkit-text-fill-color:transparent !important;background-clip:text !important;color:transparent !important;';
 }
 
 function tnstack_core_pricing_grid_template( $path ) {
@@ -64,12 +97,12 @@ function tnstack_core_pricing_grid_normalize_color( $color ) {
 }
 
 function tnstack_core_pricing_grid_resolve_style( $atts, $prefix, $solid, $type = 'bg' ) {
-	$gradient = tnstack_core_gradient_value( $atts, $prefix );
+	$gradient = tnstack_core_pricing_grid_gradient_value( $atts, $prefix );
 
 	if ( '' !== $gradient ) {
 		return 'bg' === $type
-			? tnstack_core_gradient_bg_style( $gradient )
-			: tnstack_core_gradient_text_style( $gradient );
+			? tnstack_core_pricing_grid_gradient_bg_style( $gradient )
+			: tnstack_core_pricing_grid_gradient_text_style( $gradient );
 	}
 
 	$solid = tnstack_core_pricing_grid_normalize_color( $solid );
