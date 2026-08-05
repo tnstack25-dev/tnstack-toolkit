@@ -52,6 +52,14 @@
   background: rgba(0, 132, 255, 0.45);
 }
 
+.tnstack-fc__item--facebook .tnstack-fc__wave {
+  background: rgba(24, 119, 242, 0.45);
+}
+
+.tnstack-fc__item--tiktok .tnstack-fc__wave {
+  background: rgba(0, 0, 0, 0.4);
+}
+
 .tnstack-fc__btn {
   position: relative;
   z-index: 2;
@@ -67,16 +75,12 @@
   transition:
     transform 0.25s ease,
     box-shadow 0.25s ease;
-  animation: tnstack-fc-shake 2.8s ease-in-out infinite;
-  animation-delay: var(--tnstack-fc-delay, 0s);
-  will-change: transform;
 }
 
 .tnstack-fc__btn:hover,
 .tnstack-fc__btn:focus-visible {
   transform: scale(1.08);
   box-shadow: 0 8px 22px rgba(0, 0, 0, 0.28);
-  animation-play-state: paused;
 }
 
 .tnstack-fc__btn:hover svg {
@@ -99,12 +103,28 @@
   background: linear-gradient(135deg, #0084ff 0%, #0064e0 100%);
 }
 
+.tnstack-fc__btn--facebook {
+  background: linear-gradient(135deg, #1877f2 0%, #0c55b8 100%);
+}
+
+.tnstack-fc__btn--tiktok {
+  background: linear-gradient(135deg, #242424 0%, #000 100%);
+}
+
 .tnstack-fc__icon {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 28px;
   height: 28px;
+  animation: tnstack-fc-shake 2.8s ease-in-out infinite;
+  animation-delay: var(--tnstack-fc-delay, 0s);
+  will-change: transform;
+}
+
+.tnstack-fc__btn:hover .tnstack-fc__icon,
+.tnstack-fc__btn:focus-visible .tnstack-fc__icon {
+  animation-play-state: paused;
 }
 
 .tnstack-fc__icon svg {
@@ -112,6 +132,29 @@
   width: 100%;
   height: 100%;
   fill: currentColor;
+}
+
+.tnstack-fc__number {
+  position: absolute;
+  top: 50%;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: #fff;
+  color: #1f2937;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  transform: translateY(-50%);
+}
+
+.tnstack-fc--right .tnstack-fc__number {
+  right: calc(100% + 10px);
+}
+
+.tnstack-fc--left .tnstack-fc__number {
+  left: calc(100% + 10px);
 }
 
 @keyframes tnstack-fc-shake {
@@ -183,10 +226,15 @@
     width: 24px;
     height: 24px;
   }
+
+  .tnstack-fc__number {
+    padding: 7px 10px;
+    font-size: 13px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .tnstack-fc__btn,
+  .tnstack-fc__icon,
   .tnstack-fc__wave {
     animation: none;
   }

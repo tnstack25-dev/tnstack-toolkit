@@ -1,6 +1,6 @@
 <?php
 /**
- * Floating contact buttons (Zalo, phone, WhatsApp, Messenger).
+ * Floating contact buttons (Zalo, phone, WhatsApp, Messenger, Facebook, TikTok).
  *
  * @package TNStackToolkit
  */
@@ -18,9 +18,15 @@ function tnstack_floating_contact_defaults()
 	return array(
 		'enabled' => 1,
 		'zalo' => '',
+		'show_zalo_number' => 0,
 		'phone' => '',
+		'show_phone_number' => 0,
+		'phone_2' => '',
+		'show_phone_2_number' => 0,
 		'whatsapp' => '',
 		'messenger' => '',
+		'facebook' => '',
+		'tiktok' => '',
 		'position' => 'right',
 	);
 }
@@ -67,9 +73,15 @@ function tnstack_floating_contact_render_admin()
 			'floating-contact',
 			array(
 				'zalo' => sanitize_text_field(wp_unslash($_POST['zalo'] ?? '')),
+				'show_zalo_number' => isset($_POST['show_zalo_number']) ? 1 : 0,
 				'phone' => sanitize_text_field(wp_unslash($_POST['phone'] ?? '')),
+				'show_phone_number' => isset($_POST['show_phone_number']) ? 1 : 0,
+				'phone_2' => sanitize_text_field(wp_unslash($_POST['phone_2'] ?? '')),
+				'show_phone_2_number' => isset($_POST['show_phone_2_number']) ? 1 : 0,
 				'whatsapp' => sanitize_text_field(wp_unslash($_POST['whatsapp'] ?? '')),
 				'messenger' => esc_url_raw(wp_unslash($_POST['messenger'] ?? '')),
+				'facebook' => esc_url_raw(wp_unslash($_POST['facebook'] ?? '')),
+				'tiktok' => esc_url_raw(wp_unslash($_POST['tiktok'] ?? '')),
 				'position' => in_array($position, array('left', 'right'), true) ? $position : 'right',
 			),
 			tnstack_floating_contact_defaults()
@@ -103,11 +115,24 @@ function tnstack_floating_contact_render_admin()
 				<table class="form-table" role="presentation">
 					<tr>
 						<th scope="row"><label for="tnstack_fc_zalo"><?php esc_html_e('Zalo', 'tnstack-toolkit'); ?></label></th>
-						<td><input type="tel" id="tnstack_fc_zalo" name="zalo" class="regular-text" value="<?php echo esc_attr($s['zalo']); ?>" placeholder="0123.456.798"></td>
+						<td>
+							<input type="tel" id="tnstack_fc_zalo" name="zalo" class="regular-text" value="<?php echo esc_attr($s['zalo']); ?>" placeholder="0123.456.798">
+							<label><input type="checkbox" name="show_zalo_number" value="1" <?php checked(!empty($s['show_zalo_number'])); ?>> <?php esc_html_e('Hiển thị số bên cạnh nút', 'tnstack-toolkit'); ?></label>
+						</td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="tnstack_fc_phone"><?php esc_html_e('Số điện thoại', 'tnstack-toolkit'); ?></label></th>
-						<td><input type="tel" id="tnstack_fc_phone" name="phone" class="regular-text" value="<?php echo esc_attr($s['phone']); ?>" placeholder="0123.456.798"></td>
+						<th scope="row"><label for="tnstack_fc_phone"><?php esc_html_e('Số điện thoại 1', 'tnstack-toolkit'); ?></label></th>
+						<td>
+							<input type="tel" id="tnstack_fc_phone" name="phone" class="regular-text" value="<?php echo esc_attr($s['phone']); ?>" placeholder="0123.456.798">
+							<label><input type="checkbox" name="show_phone_number" value="1" <?php checked(!empty($s['show_phone_number'])); ?>> <?php esc_html_e('Hiển thị số bên cạnh nút', 'tnstack-toolkit'); ?></label>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="tnstack_fc_phone_2"><?php esc_html_e('Số điện thoại 2', 'tnstack-toolkit'); ?></label></th>
+						<td>
+							<input type="tel" id="tnstack_fc_phone_2" name="phone_2" class="regular-text" value="<?php echo esc_attr($s['phone_2']); ?>" placeholder="0987.654.321">
+							<label><input type="checkbox" name="show_phone_2_number" value="1" <?php checked(!empty($s['show_phone_2_number'])); ?>> <?php esc_html_e('Hiển thị số bên cạnh nút', 'tnstack-toolkit'); ?></label>
+						</td>
 					</tr>
 					<tr>
 						<th scope="row"><label for="tnstack_fc_whatsapp">WhatsApp</label></th>
@@ -119,6 +144,14 @@ function tnstack_floating_contact_render_admin()
 					<tr>
 						<th scope="row"><label for="tnstack_fc_messenger">Messenger</label></th>
 						<td><input type="url" id="tnstack_fc_messenger" name="messenger" class="regular-text" value="<?php echo esc_attr($s['messenger']); ?>" placeholder="https://m.me/page"></td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="tnstack_fc_facebook">Facebook</label></th>
+						<td><input type="url" id="tnstack_fc_facebook" name="facebook" class="regular-text" value="<?php echo esc_attr($s['facebook']); ?>" placeholder="https://www.facebook.com/page"></td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="tnstack_fc_tiktok">TikTok</label></th>
+						<td><input type="url" id="tnstack_fc_tiktok" name="tiktok" class="regular-text" value="<?php echo esc_attr($s['tiktok']); ?>" placeholder="https://www.tiktok.com/@username"></td>
 					</tr>
 					<tr>
 						<th scope="row"><label for="tnstack_fc_position"><?php esc_html_e('Vị trí hiển thị', 'tnstack-toolkit'); ?></label></th>
@@ -152,6 +185,7 @@ function tnstack_floating_contact_get_links()
 			'url' => 'https://zalo.me/' . rawurlencode(preg_replace('/\D/', '', $s['zalo'])),
 			'label' => 'Zalo',
 			'class' => 'zalo',
+			'text' => !empty($s['show_zalo_number']) ? $s['zalo'] : '',
 		);
 	}
 
@@ -160,6 +194,16 @@ function tnstack_floating_contact_get_links()
 			'url' => 'tel:' . preg_replace('/\s+/', '', $s['phone']),
 			'label' => __('Gọi điện', 'tnstack-toolkit'),
 			'class' => 'phone',
+			'text' => !empty($s['show_phone_number']) ? $s['phone'] : '',
+		);
+	}
+
+	if (!empty($s['phone_2'])) {
+		$links[] = array(
+			'url' => 'tel:' . preg_replace('/\s+/', '', $s['phone_2']),
+			'label' => __('Gọi điện', 'tnstack-toolkit'),
+			'class' => 'phone',
+			'text' => !empty($s['show_phone_2_number']) ? $s['phone_2'] : '',
 		);
 	}
 
@@ -176,6 +220,22 @@ function tnstack_floating_contact_get_links()
 			'url' => $s['messenger'],
 			'label' => 'Messenger',
 			'class' => 'fb',
+		);
+	}
+
+	if (!empty($s['facebook'])) {
+		$links[] = array(
+			'url' => $s['facebook'],
+			'label' => 'Facebook',
+			'class' => 'facebook',
+		);
+	}
+
+	if (!empty($s['tiktok'])) {
+		$links[] = array(
+			'url' => $s['tiktok'],
+			'label' => 'TikTok',
+			'class' => 'tiktok',
 		);
 	}
 
@@ -202,6 +262,8 @@ function tnstack_floating_contact_icon($type)
 		'phone' => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24 11.36 11.36 0 0 0 3.58.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.36 11.36 0 0 0 .57 3.58 1 1 0 0 1-.25 1.01l-2.2 2.2z"/></svg>',
 		'wa' => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 2.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.435 9.884-9.881 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>',
 		'fb' => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.04c-5.5 0-10 4.13-10 9.22 0 2.91 1.46 5.51 3.74 7.2l-.95 2.83 3.24-1.06c.95.26 1.96.41 2.97.41 5.5 0 10-4.13 10-9.22S17.5 2.04 12 2.04zm1.03 12.41-2.61-2.78-4.82 2.78 5.21-5.54 2.68 2.85 4.75-2.85-5.21 5.54z"/></svg>',
+		'facebook' => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.413c0-3.025 1.792-4.697 4.533-4.697 1.313 0 2.686.236 2.686.236v2.971h-1.513c-1.49 0-1.956.931-1.956 1.887v2.263h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>',
+		'tiktok' => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.589 6.686a4.793 4.793 0 0 1-3.77-4.245V2h-3.445v13.672a2.896 2.896 0 0 1-5.201 1.743 2.895 2.895 0 0 1 3.183-4.51V9.384a6.329 6.329 0 0 0-5.394 10.692 6.33 6.33 0 0 0 10.857-4.403V8.738a8.182 8.182 0 0 0 4.773 1.526V6.842a4.831 4.831 0 0 1-1.003-.156z"/></svg>',
 	);
 
 	$icon = $icons[$type] ?? $icons['phone'];
@@ -235,6 +297,9 @@ function tnstack_floating_contact_render()
 				<span class="tnstack-fc__wave tnstack-fc__wave--2" aria-hidden="true"></span>
 				<a href="<?php echo esc_url($link['url']); ?>"
 					class="tnstack-fc__btn tnstack-fc__btn--<?php echo esc_attr($link['class']); ?>" <?php echo $is_external ? 'target="_blank" rel="noopener noreferrer"' : ''; ?> aria-label="<?php echo esc_attr($link['label']); ?>">
+					<?php if (!empty($link['text'])): ?>
+						<span class="tnstack-fc__number"><?php echo esc_html($link['text']); ?></span>
+					<?php endif; ?>
 					<?php echo tnstack_floating_contact_icon($link['class']); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- SVG markup is static. ?>
 				</a>
 			</div>

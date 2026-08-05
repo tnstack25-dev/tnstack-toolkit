@@ -3,7 +3,7 @@ Contributors: tnstack
 Tags: performance, security, catalog, ux builder, wordpress toolkit
 Requires at least: 6.0
 Requires PHP: 7.4
-Stable tag: 2.2.1
+Stable tag: 2.2.2
 License: GPLv2 or later
 
 TNStack Toolkit cung cấp các module hiệu năng, bảo mật, nội dung, Slim Catalog
@@ -35,7 +35,7 @@ Repository mặc định: `tnstack25-dev/tnstack-toolkit`.
 
 1. Commit và push mã nguồn, bao gồm workflow trong `.github/workflows/release.yml`.
 2. Đảm bảo version trong `tnstack-toolkit.php` khớp với tag.
-3. Tạo và push tag, ví dụ: `git tag v2.2.1` rồi `git push origin v2.2.1`.
+3. Tạo và push tag, ví dụ: `git tag v2.2.2` rồi `git push origin v2.2.2`.
 4. GitHub Actions sẽ tạo Release và tải lên asset `tnstack-toolkit.zip`.
 5. Trong WordPress, mở TNStack Toolkit → Plugin & Hệ thống để kiểm tra cập nhật.
 
@@ -52,6 +52,12 @@ Lỗi được cô lập ở module tương ứng. Các module còn lại tiếp
 quản trị viên nhận được thông báo để kiểm tra.
 
 == Changelog ==
+
+= 2.2.2 =
+
+* Thêm Facebook, TikTok và số điện thoại thứ hai cho Floating Contact.
+* Thêm tùy chọn hiển thị số cạnh nút Zalo và từng nút điện thoại.
+* Giữ nhãn số đứng yên khi icon liên hệ chạy hiệu ứng lắc.
 
 = 2.2.1 =
 
