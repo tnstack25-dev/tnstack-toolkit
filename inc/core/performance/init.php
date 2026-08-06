@@ -7,8 +7,14 @@
 
 defined( 'ABSPATH' ) || exit;
 
+require_once tnstack_core_path( 'inc/core/performance/advanced-cache.php' );
+TNStack_Advanced_Cache::boot();
+
 require_once tnstack_core_path( 'inc/core/performance/page-cache.php' );
 tnstack_core_page_cache_register_hooks();
+
+require_once tnstack_core_path( 'inc/core/performance/cache-preloader.php' );
+TNStack_Cache_Preloader::boot();
 
 require_once tnstack_core_path( 'inc/core/performance/settings.php' );
 require_once tnstack_core_path( 'inc/core/performance/admin.php' );

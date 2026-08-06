@@ -28,6 +28,12 @@ final class Template_Performance_Cache {
 			'cache_ttl'         => self::TTL,
 			'purge_mode'        => 'selective',
 			'max_cache_files'   => 5000,
+			'enable_preload'    => 0,
+			'preload_sitemap_url' => '',
+			'preload_batch_size'  => 5,
+			'preload_max_urls'    => 5000,
+			'preload_only_missing' => 1,
+			'preload_auto_after_purge' => 0,
 		);
 	}
 
@@ -44,6 +50,12 @@ final class Template_Performance_Cache {
 			? $settings['purge_mode']
 			: 'selective';
 		$settings['max_cache_files']   = max( 500, min( 50000, absint( $settings['max_cache_files'] ) ) );
+		$settings['enable_preload']    = ! empty( $settings['enable_preload'] ) ? 1 : 0;
+		$settings['preload_sitemap_url'] = esc_url_raw( (string) $settings['preload_sitemap_url'] );
+		$settings['preload_batch_size']  = max( 1, min( 10, absint( $settings['preload_batch_size'] ) ) );
+		$settings['preload_max_urls']    = max( 100, min( 50000, absint( $settings['preload_max_urls'] ) ) );
+		$settings['preload_only_missing'] = ! empty( $settings['preload_only_missing'] ) ? 1 : 0;
+		$settings['preload_auto_after_purge'] = ! empty( $settings['preload_auto_after_purge'] ) ? 1 : 0;
 
 		return $settings;
 	}
@@ -110,11 +122,49 @@ final class Template_Performance_Cache {
 			'max_cache_files'   => isset( $settings['max_cache_files'] )
 				? max( 500, min( 50000, absint( $settings['max_cache_files'] ) ) )
 				: $current['max_cache_files'],
+			'enable_preload'    => ! empty( $settings['enable_preload'] ) ? 1 : 0,
+			'preload_sitemap_url' => isset( $settings['preload_sitemap_url'] ) ? esc_url_raw( (string) $settings['preload_sitemap_url'] ) : $current['preload_sitemap_url'],
+			'preload_batch_size'  => isset( $settings['preload_batch_size'] ) ? max( 1, min( 10, absint( $settings['preload_batch_size'] ) ) ) : $current['preload_batch_size'],
+			'preload_max_urls'    => isset( $settings['preload_max_urls'] ) ? max( 100, min( 50000, absint( $settings['preload_max_urls'] ) ) ) : $current['preload_max_urls'],
+			'preload_only_missing' => ! empty( $settings['preload_only_missing'] ) ? 1 : 0,
+			'preload_auto_after_purge' => ! empty( $settings['preload_auto_after_purge'] ) ? 1 : 0,
 		);
 
 		update_option( self::OPTION, $updated, false );
 
+		if ( ! class_exists( 'TNStack_Advanced_Cache', false ) ) {
+			$manager = __DIR__ . '/advanced-cache.php';
+			if ( is_readable( $manager ) ) {
+				require_once $manager;
+			}
+		}
+		if ( class_exists( 'TNStack_Advanced_Cache', false ) ) {
+			TNStack_Advanced_Cache::sync( $updated );
+		}
+
 		return $updated;
+	}
+
+	/**
+	 * Check whether an absolute URL already has a fresh local page-cache file.
+	 *
+	 * @param string $url Absolute same-site URL.
+	 * @return bool
+	 */
+	public static function is_url_cache_fresh( $url ) {
+		$parts = function_exists( 'wp_parse_url' ) ? wp_parse_url( $url ) : parse_url( $url );
+		if ( ! is_array( $parts ) || empty( $parts['host'] ) ) {
+			return false;
+		}
+
+		$host = strtolower( (string) $parts['host'] );
+		if ( ! empty( $parts['port'] ) ) {
+			$host .= ':' . absint( $parts['port'] );
+		}
+
+		$uri = self::url_to_uri( $url );
+
+		return self::is_fresh( self::resolve_cache_file( $host, $uri ) );
 	}
 
 	/**

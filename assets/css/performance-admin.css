@@ -78,6 +78,10 @@
   margin-bottom: 0;
 }
 
+.fcp-performance-grid > .fcp-card--wide {
+  grid-column: 1 / -1;
+}
+
 .fcp-card h2 {
   margin: 0 0 16px;
   font-size: 16px;
@@ -137,8 +141,91 @@
   color: #842029;
 }
 
+.fcp-badge--warning {
+  background: #fcf0c3;
+  color: #6e4b00;
+}
+
 .fcp-card__actions {
   margin: 20px 0 8px;
+}
+
+.fcp-preload-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 8px;
+}
+
+.fcp-preload-heading h2 {
+  margin-bottom: 6px;
+}
+
+.fcp-preload-heading p {
+  margin: 0;
+}
+
+.fcp-preload-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(280px, 2fr);
+  gap: 28px;
+  align-items: start;
+}
+
+.fcp-preload-status {
+  margin-top: 16px;
+  padding: 18px;
+  border: 1px solid #dcdcde;
+  border-radius: 8px;
+  background: #f6f7f7;
+}
+
+.fcp-preload-progress {
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #dcdcde;
+}
+
+.fcp-preload-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #2271b1;
+  transition: width 0.2s ease;
+}
+
+.fcp-preload-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.fcp-preload-metrics > div {
+  padding: 10px;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.fcp-preload-metrics dt {
+  color: #646970;
+  font-size: 12px;
+}
+
+.fcp-preload-metrics dd {
+  margin: 3px 0 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.fcp-preload-status code {
+  word-break: break-all;
+}
+
+.fcp-preload-error {
+  color: #b32d2e;
 }
 
 .fcp-toggle-grid {
@@ -244,7 +331,8 @@
 @media (max-width: 960px) {
   .fcp-performance-grid,
   .fcp-stats,
-  .fcp-toggle-grid {
+  .fcp-toggle-grid,
+  .fcp-preload-layout {
     grid-template-columns: 1fr;
   }
 }

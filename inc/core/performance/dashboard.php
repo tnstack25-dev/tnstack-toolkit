@@ -90,6 +90,12 @@ final class TNStack_Core_Performance_Dashboard {
 					'cache_ttl'         => absint( $_POST['cache_ttl'] ),
 					'purge_mode'        => $purge_mode,
 					'max_cache_files'   => absint( $_POST['max_cache_files'] ?? 5000 ),
+					'enable_preload'    => ! empty( $_POST['enable_preload'] ),
+					'preload_sitemap_url' => isset( $_POST['preload_sitemap_url'] ) ? esc_url_raw( wp_unslash( $_POST['preload_sitemap_url'] ) ) : '',
+					'preload_batch_size'  => absint( $_POST['preload_batch_size'] ?? 5 ),
+					'preload_max_urls'    => absint( $_POST['preload_max_urls'] ?? 5000 ),
+					'preload_only_missing' => ! empty( $_POST['preload_only_missing'] ),
+					'preload_auto_after_purge' => ! empty( $_POST['preload_auto_after_purge'] ),
 				)
 			);
 		}
@@ -233,7 +239,15 @@ final class TNStack_Core_Performance_Dashboard {
 				'cache_ttl'         => 604800,
 				'purge_mode'        => 'selective',
 				'max_cache_files'   => 5000,
+				'enable_preload'    => 0,
+				'preload_sitemap_url' => '',
+				'preload_batch_size'  => 5,
+				'preload_max_urls'    => 5000,
+				'preload_only_missing' => 1,
+				'preload_auto_after_purge' => 0,
 			);
+		$advanced_cache_status = class_exists( 'TNStack_Advanced_Cache', false ) ? TNStack_Advanced_Cache::status() : array( 'active' => false );
+		$preload_state = class_exists( 'TNStack_Cache_Preloader', false ) ? TNStack_Cache_Preloader::get_state() : array( 'status' => 'idle' );
 		$settings      = tnstack_core_optimization_settings();
 		$labels        = tnstack_core_optimization_field_labels();
 		$flush_url     = wp_nonce_url(
@@ -242,6 +256,13 @@ final class TNStack_Core_Performance_Dashboard {
 			'tnstack_core_flush_nonce'
 		);
 		$base_url      = admin_url( 'admin.php?page=' . self::PAGE_SLUG );
+		$preload_actions = array();
+		foreach ( array( 'start', 'pause', 'resume', 'cancel' ) as $preload_action ) {
+			$preload_actions[ $preload_action ] = wp_nonce_url(
+				admin_url( 'admin-post.php?action=tnstack_cache_preload_' . $preload_action ),
+				'tnstack_cache_preload_' . $preload_action
+			);
+		}
 		?>
 		<div class="wrap fcp-performance-wrap">
 			<header class="fcp-performance-header">
@@ -258,10 +279,30 @@ final class TNStack_Core_Performance_Dashboard {
 			}
 			?>
 
+			<?php
+			$preload_notice = isset( $_GET['preload_notice'] ) ? sanitize_key( wp_unslash( $_GET['preload_notice'] ) ) : '';
+			$preload_messages = array(
+				'started'          => array( 'success', __( 'Đã tạo hàng đợi preload từ sitemap.', 'tnstack-toolkit' ) ),
+				'paused'           => array( 'warning', __( 'Đã tạm dừng preload cache.', 'tnstack-toolkit' ) ),
+				'resumed'          => array( 'success', __( 'Đã tiếp tục preload cache.', 'tnstack-toolkit' ) ),
+				'cancelled'        => array( 'warning', __( 'Đã hủy hàng đợi preload.', 'tnstack-toolkit' ) ),
+				'cache_disabled'   => array( 'error', __( 'Hãy bật cache trang trước khi preload.', 'tnstack-toolkit' ) ),
+				'preload_disabled' => array( 'error', __( 'Hãy bật Preload Cache và lưu cài đặt trước.', 'tnstack-toolkit' ) ),
+				'invalid_sitemap'  => array( 'error', __( 'Sitemap phải là URL hợp lệ trên cùng domain website.', 'tnstack-toolkit' ) ),
+			);
+			if ( isset( $preload_messages[ $preload_notice ] ) ) {
+				echo '<div class="notice notice-' . esc_attr( $preload_messages[ $preload_notice ][0] ) . ' is-dismissible"><p>' . esc_html( $preload_messages[ $preload_notice ][1] ) . '</p></div>';
+			}
+			?>
+
 			<?php if ( is_array( $notice ) && ! empty( $notice['message'] ) ) : ?>
 				<div class="notice notice-<?php echo esc_attr( $notice['type'] ?? 'success' ); ?> is-dismissible">
 					<p><?php echo esc_html( $notice['message'] ); ?></p>
 				</div>
+			<?php endif; ?>
+
+			<?php if ( 'cache' === $tab && ! empty( $advanced_cache_status['error'] ) ) : ?>
+				<div class="notice notice-warning"><p><?php echo esc_html( $advanced_cache_status['error'] ); ?></p></div>
 			<?php endif; ?>
 
 			<nav class="nav-tab-wrapper fcp-tabs">
@@ -315,6 +356,14 @@ final class TNStack_Core_Performance_Dashboard {
 									<dd><?php echo ! empty( $stats['newest_mtime'] ) ? esc_html( wp_date( 'd/m/Y H:i:s', (int) $stats['newest_mtime'] ) ) : esc_html__( 'Chưa có cache', 'tnstack-toolkit' ); ?></dd>
 								</div>
 								<div>
+									<dt><?php esc_html_e( 'Advanced Cache', 'tnstack-toolkit' ); ?></dt>
+									<dd>
+										<span class="fcp-badge fcp-badge--<?php echo esc_attr( ! empty( $advanced_cache_status['active'] ) ? 'on' : 'off' ); ?>">
+											<?php echo ! empty( $advanced_cache_status['active'] ) ? esc_html__( 'Đang hoạt động', 'tnstack-toolkit' ) : esc_html__( 'Chưa hoạt động', 'tnstack-toolkit' ); ?>
+										</span>
+									</dd>
+								</div>
+								<div>
 									<dt><?php esc_html_e( 'Thư mục', 'tnstack-toolkit' ); ?></dt>
 									<dd><code><?php echo esc_html( (string) ( $stats['directory'] ?? '' ) ); ?></code></dd>
 								</div>
@@ -361,6 +410,8 @@ final class TNStack_Core_Performance_Dashboard {
 								</tr>
 							</table>
 						</section>
+
+						<?php self::render_preload_card( $cache_settings, $preload_state, $preload_actions ); ?>
 					</div>
 				<?php endif; ?>
 
@@ -495,6 +546,106 @@ final class TNStack_Core_Performance_Dashboard {
 			</form>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Render sitemap-driven preload settings and runtime status.
+	 *
+	 * @param array<string, mixed> $cache_settings Cache settings.
+	 * @param array<string, mixed> $state          Preload state.
+	 * @param array<string, string> $actions       Secured action URLs.
+	 */
+	private static function render_preload_card( $cache_settings, $state, $actions ) {
+		$status    = $state['status'] ?? 'idle';
+		$total     = max( 0, (int) ( $state['total_urls'] ?? 0 ) );
+		$processed = max( 0, (int) ( $state['processed'] ?? 0 ) );
+		$percent   = $total ? min( 100, (int) floor( $processed * 100 / $total ) ) : 0;
+		$badge     = in_array( $status, array( 'running', 'completed' ), true ) ? 'on' : ( 'paused' === $status ? 'warning' : 'off' );
+		?>
+		<section class="fcp-card fcp-card--wide fcp-preload-card">
+			<div class="fcp-preload-heading">
+				<div>
+					<h2><?php esc_html_e( 'Preload Cache theo Sitemap', 'tnstack-toolkit' ); ?></h2>
+					<p class="description"><?php esc_html_e( 'Đọc sitemap index hoặc sitemap URL bạn cung cấp và tạo cache nền theo từng batch nhỏ.', 'tnstack-toolkit' ); ?></p>
+				</div>
+				<span class="fcp-badge fcp-badge--<?php echo esc_attr( $badge ); ?>"><?php echo esc_html( self::preload_status_label( $status ) ); ?></span>
+			</div>
+
+			<div class="fcp-preload-layout">
+				<div>
+					<table class="form-table" role="presentation">
+						<tr>
+							<th scope="row"><?php esc_html_e( 'Bật preload', 'tnstack-toolkit' ); ?></th>
+							<td><label><input type="checkbox" name="enable_preload" value="1" <?php checked( ! empty( $cache_settings['enable_preload'] ) ); ?>> <?php esc_html_e( 'Cho phép tạo cache nền từ sitemap', 'tnstack-toolkit' ); ?></label></td>
+						</tr>
+						<tr>
+							<th scope="row"><label for="preload_sitemap_url"><?php esc_html_e( 'URL Sitemap', 'tnstack-toolkit' ); ?></label></th>
+							<td>
+								<input type="url" class="large-text code" id="preload_sitemap_url" name="preload_sitemap_url" value="<?php echo esc_attr( $cache_settings['preload_sitemap_url'] ?? '' ); ?>" placeholder="<?php echo esc_attr( home_url( '/wp-sitemap.xml' ) ); ?>">
+								<p class="description"><?php esc_html_e( 'Hỗ trợ sitemap index, sitemap URL và sitemap .gz. URL phải cùng domain website.', 'tnstack-toolkit' ); ?></p>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row"><label for="preload_batch_size"><?php esc_html_e( 'Kích thước batch', 'tnstack-toolkit' ); ?></label></th>
+							<td>
+								<input type="number" id="preload_batch_size" name="preload_batch_size" min="1" max="10" value="<?php echo esc_attr( (int) ( $cache_settings['preload_batch_size'] ?? 5 ) ); ?>"> <?php esc_html_e( 'URL mỗi lượt', 'tnstack-toolkit' ); ?>
+								<p class="description"><?php esc_html_e( 'Khuyên dùng 3–5 URL trên hosting thông thường.', 'tnstack-toolkit' ); ?></p>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row"><label for="preload_max_urls"><?php esc_html_e( 'Giới hạn URL', 'tnstack-toolkit' ); ?></label></th>
+							<td>
+								<input type="number" id="preload_max_urls" name="preload_max_urls" min="100" max="50000" step="100" value="<?php echo esc_attr( (int) ( $cache_settings['preload_max_urls'] ?? 5000 ) ); ?>">
+								<p class="description"><?php esc_html_e( 'Ngăn sitemap quá lớn làm đầy ổ đĩa; tối đa 50.000 URL.', 'tnstack-toolkit' ); ?></p>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row"><?php esc_html_e( 'Chế độ', 'tnstack-toolkit' ); ?></th>
+							<td>
+								<label><input type="checkbox" name="preload_only_missing" value="1" <?php checked( ! empty( $cache_settings['preload_only_missing'] ) ); ?>> <?php esc_html_e( 'Bỏ qua URL đang có cache còn mới', 'tnstack-toolkit' ); ?></label><br>
+								<label><input type="checkbox" name="preload_auto_after_purge" value="1" <?php checked( ! empty( $cache_settings['preload_auto_after_purge'] ) ); ?>> <?php esc_html_e( 'Tự chạy sau khi xóa toàn bộ cache thủ công', 'tnstack-toolkit' ); ?></label>
+							</td>
+						</tr>
+					</table>
+				</div>
+
+				<div class="fcp-preload-status">
+					<div class="fcp-preload-progress"><span style="width:<?php echo esc_attr( $percent ); ?>%"></span></div>
+					<p><strong><?php echo esc_html( $percent ); ?>%</strong> — <?php echo esc_html( number_format_i18n( $processed ) ); ?> / <?php echo esc_html( number_format_i18n( $total ) ); ?> <?php esc_html_e( 'URL', 'tnstack-toolkit' ); ?></p>
+					<dl class="fcp-preload-metrics">
+						<div><dt><?php esc_html_e( 'Thành công', 'tnstack-toolkit' ); ?></dt><dd><?php echo esc_html( number_format_i18n( (int) ( $state['success'] ?? 0 ) ) ); ?></dd></div>
+						<div><dt><?php esc_html_e( 'Bỏ qua', 'tnstack-toolkit' ); ?></dt><dd><?php echo esc_html( number_format_i18n( (int) ( $state['skipped'] ?? 0 ) ) ); ?></dd></div>
+						<div><dt><?php esc_html_e( 'Thất bại', 'tnstack-toolkit' ); ?></dt><dd><?php echo esc_html( number_format_i18n( (int) ( $state['failed'] ?? 0 ) ) ); ?></dd></div>
+						<div><dt><?php esc_html_e( 'Sitemap đã đọc', 'tnstack-toolkit' ); ?></dt><dd><?php echo esc_html( number_format_i18n( (int) ( $state['sitemaps'] ?? 0 ) ) ); ?></dd></div>
+					</dl>
+					<?php if ( ! empty( $state['last_url'] ) ) : ?>
+						<p class="description"><strong><?php esc_html_e( 'URL gần nhất:', 'tnstack-toolkit' ); ?></strong> <code><?php echo esc_html( $state['last_url'] ); ?></code></p>
+					<?php endif; ?>
+					<?php if ( ! empty( $state['last_error'] ) ) : ?>
+						<p class="fcp-preload-error"><strong><?php esc_html_e( 'Lỗi gần nhất:', 'tnstack-toolkit' ); ?></strong> <?php echo esc_html( $state['last_error'] ); ?></p>
+					<?php endif; ?>
+					<p class="fcp-card__actions">
+						<a class="button button-primary" href="<?php echo esc_url( $actions['start'] ); ?>"><?php echo in_array( $status, array( 'running', 'paused' ), true ) ? esc_html__( 'Chạy lại', 'tnstack-toolkit' ) : esc_html__( 'Bắt đầu preload', 'tnstack-toolkit' ); ?></a>
+						<?php if ( 'running' === $status ) : ?><a class="button" href="<?php echo esc_url( $actions['pause'] ); ?>"><?php esc_html_e( 'Tạm dừng', 'tnstack-toolkit' ); ?></a><?php endif; ?>
+						<?php if ( 'paused' === $status ) : ?><a class="button" href="<?php echo esc_url( $actions['resume'] ); ?>"><?php esc_html_e( 'Tiếp tục', 'tnstack-toolkit' ); ?></a><?php endif; ?>
+						<?php if ( in_array( $status, array( 'running', 'paused' ), true ) ) : ?><a class="button button-link-delete" href="<?php echo esc_url( $actions['cancel'] ); ?>"><?php esc_html_e( 'Hủy', 'tnstack-toolkit' ); ?></a><?php endif; ?>
+					</p>
+				</div>
+			</div>
+		</section>
+		<?php
+	}
+
+	/** @param string $status Preload status. @return string */
+	private static function preload_status_label( $status ) {
+		$labels = array(
+			'idle'      => __( 'Chưa chạy', 'tnstack-toolkit' ),
+			'running'   => __( 'Đang chạy', 'tnstack-toolkit' ),
+			'paused'    => __( 'Tạm dừng', 'tnstack-toolkit' ),
+			'completed' => __( 'Hoàn tất', 'tnstack-toolkit' ),
+			'cancelled' => __( 'Đã hủy', 'tnstack-toolkit' ),
+		);
+		return $labels[ $status ] ?? __( 'Không xác định', 'tnstack-toolkit' );
 	}
 
 	/**

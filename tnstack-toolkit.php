@@ -4,7 +4,7 @@
  * Plugin URI: https://tnstack.com
  * Update URI: https://github.com/tnstack25-dev/tnstack-toolkit
  * Description: Performance, security, Slim Catalog, and modular UX Builder extensions for WordPress (Flatsome).
- * Version: 2.3.0
+ * Version: 2.4.0
  * Author: TNStack
  * Text Domain: tnstack-toolkit
  * Requires at least: 6.0
@@ -16,7 +16,7 @@
 defined( 'ABSPATH' ) || exit;
 
 if ( ! defined( 'TNSTACK_TOOLKIT_VERSION' ) ) {
-	define( 'TNSTACK_TOOLKIT_VERSION', '2.3.0' );
+	define( 'TNSTACK_TOOLKIT_VERSION', '2.4.0' );
 }
 
 if ( ! defined( 'TNSTACK_TOOLKIT_FILE' ) ) {

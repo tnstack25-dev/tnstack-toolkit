@@ -3,7 +3,7 @@ Contributors: tnstack
 Tags: performance, security, catalog, ux builder, wordpress toolkit
 Requires at least: 6.0
 Requires PHP: 7.4
-Stable tag: 2.3.0
+Stable tag: 2.4.0
 License: GPLv2 or later
 
 TNStack Toolkit cung cấp các module hiệu năng, bảo mật, nội dung, Slim Catalog
@@ -35,7 +35,7 @@ Repository mặc định: `tnstack25-dev/tnstack-toolkit`.
 
 1. Commit và push mã nguồn, bao gồm workflow trong `.github/workflows/release.yml`.
 2. Đảm bảo version trong `tnstack-toolkit.php` khớp với tag.
-3. Tạo và push tag, ví dụ: `git tag v2.3.0` rồi `git push origin v2.3.0`.
+3. Tạo và push tag, ví dụ: `git tag v2.4.0` rồi `git push origin v2.4.0`.
 4. GitHub Actions sẽ tạo Release và tải lên asset `tnstack-toolkit.zip`.
 5. Trong WordPress, mở TNStack Toolkit → Plugin & Hệ thống để kiểm tra cập nhật.
 
@@ -67,6 +67,16 @@ Lỗi được cô lập ở module tương ứng. Các module còn lại tiếp
 quản trị viên nhận được thông báo để kiểm tra.
 
 == Changelog ==
+
+= 2.4.0 =
+
+* Thêm Preload Cache theo sitemap index, sitemap URL và sitemap nén `.gz`.
+* Thêm hàng đợi preload chạy nền theo batch, khóa chống chạy trùng, retry lỗi tạm thời và giới hạn URL/sitemap an toàn.
+* Thêm điều khiển bắt đầu, tạm dừng, tiếp tục, hủy và theo dõi tiến độ preload trong trang Cache.
+* Thêm tùy chọn bỏ qua URL còn cache mới và tự preload sau khi xóa toàn bộ cache thủ công.
+* Thêm drop-in `advanced-cache.php` để trả HTML cache trước khi WordPress kết nối database.
+* Tự cài đặt, đồng bộ và kiểm tra `WP_CACHE`, drop-in và cấu hình TTL; không ghi đè drop-in của plugin khác.
+* Hiển thị trạng thái Advanced Cache và tự dọn drop-in TNStack khi vô hiệu hóa plugin.
 
 = 2.3.0 =
 
