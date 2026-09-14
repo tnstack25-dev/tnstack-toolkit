@@ -12,6 +12,16 @@
 	var enabledEl = wrap.querySelector('[data-ttk-enabled]');
 	var totalEl = wrap.querySelector('[data-ttk-total]');
 	var saveInfo = wrap.querySelector('[data-ttk-save-info]');
+	var form = wrap.querySelector('.ttk-form');
+	var savebar = wrap.querySelector('.ttk-savebar');
+	var saveButton = wrap.querySelector('.ttk-btn-save');
+	var dirty = false;
+
+	function markDirty() {
+		dirty = true;
+		if (savebar) savebar.classList.add('is-dirty');
+		if (saveInfo) saveInfo.textContent = 'Có thay đổi chưa lưu';
+	}
 
 	function countEnabled() {
 		var enabled = 0;
@@ -55,7 +65,12 @@
 		input.addEventListener('change', function () {
 			mod.classList.toggle('is-active', input.checked);
 			countEnabled();
+			markDirty();
 		});
+	});
+
+	wrap.querySelectorAll('.ttk-profile__input').forEach(function (input) {
+		input.addEventListener('change', markDirty);
 	});
 
 	if (searchInput) {
@@ -66,6 +81,10 @@
 				mod.classList.toggle('is-hidden', query !== '' && text.indexOf(query) === -1);
 			});
 			updateNavCounts();
+			wrap.querySelectorAll('.ttk-section').forEach(function (section) {
+				var cards = section.querySelectorAll('.ttk-module');
+				if (cards.length) section.classList.toggle('has-no-results', section.querySelectorAll('.ttk-module:not(.is-hidden)').length === 0);
+			});
 		});
 	}
 
@@ -107,4 +126,6 @@
 	}
 
 	countEnabled();
+	if (form) form.addEventListener('submit', function () { dirty = false; if (saveButton) { saveButton.disabled = true; saveButton.textContent = 'Đang lưu...'; } });
+	window.addEventListener('beforeunload', function (event) { if (!dirty) return; event.preventDefault(); event.returnValue = ''; });
 })();

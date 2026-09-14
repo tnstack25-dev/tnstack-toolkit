@@ -8,10 +8,8 @@
 defined( 'ABSPATH' ) || exit;
 
 require_once tnstack_core_path( 'inc/modules/countdown-timer/shortcode.php' );
-require_once tnstack_core_path( 'inc/modules/countdown-timer/builder.php' );
 
 add_action( 'wp_enqueue_scripts', 'tnstack_countdown_assets' );
-add_action( 'ux_builder_enqueue_scripts', 'tnstack_countdown_assets' );
 
 function tnstack_countdown_assets() {
 	if ( ! tnstack_countdown_should_load() ) {
@@ -26,11 +24,5 @@ function tnstack_countdown_assets() {
 }
 
 function tnstack_countdown_should_load() {
-	if (
-		( function_exists( 'ux_builder_is_editor' ) && ux_builder_is_editor() )
-		|| ( function_exists( 'ux_builder_is_iframe' ) && ux_builder_is_iframe() )
-	) {
-		return true;
-	}
 	return tnstack_core_content_has( 'ttk_countdown', null );
 }

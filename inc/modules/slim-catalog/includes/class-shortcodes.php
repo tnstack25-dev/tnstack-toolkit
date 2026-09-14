@@ -45,6 +45,7 @@ class Slim_Catalog_Shortcodes {
 				'slider_bullets'      => 'false',
 				'auto_slide'          => '',
 				'infinitive'          => 'true',
+				'slide_by'            => '1',
 				'depth'               => '',
 				'depth_hover'         => '',
 				'animate'             => '',
@@ -57,6 +58,16 @@ class Slim_Catalog_Shortcodes {
 				'order'               => 'DESC',
 				'ids'                 => '',
 				'offset'              => '',
+				'card_style'          => 'default',
+				'image_ratio'         => 'square',
+				'show_description'    => 'true',
+				'show_price'          => 'true',
+				'show_category'       => 'true',
+				'show_badge'          => 'true',
+				'show_button'         => 'true',
+				'title_lines'         => '2',
+				'description_lines'   => '3',
+				'radius'              => '12',
 			),
 			$atts,
 			$tag
@@ -150,7 +161,7 @@ class Slim_Catalog_Shortcodes {
 					?>
 					<div class="col"<?php echo $animate_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 						<div class="col-inner">
-							<?php slim_catalog_product_card( $product ); ?>
+							<?php slim_catalog_product_card( $product, self::card_options( $atts ) ); ?>
 						</div>
 					</div>
 					<?php
@@ -168,7 +179,20 @@ class Slim_Catalog_Shortcodes {
 			?>
 		</div>
 		<?php
-		return ob_get_clean();
+		$html = ob_get_clean();
+
+		// Flatsome groups all visible columns ("100%") by default. Product
+		// sliders should advance one card per swipe/click unless explicitly
+		// requested otherwise.
+		if ( 'slider' === $atts['type'] && '1' === (string) $atts['slide_by'] ) {
+			$html = str_replace(
+				array( '"groupCells": "100%"', '&quot;groupCells&quot;: &quot;100%&quot;' ),
+				array( '"groupCells": false', '&quot;groupCells&quot;: false' ),
+				$html
+			);
+		}
+
+		return $html;
 	}
 
 	/**
@@ -188,6 +212,7 @@ class Slim_Catalog_Shortcodes {
 				'ids'      => '',
 				'title'    => '',
 				'subtitle' => '',
+				'card_style'=>'default','image_ratio'=>'square','show_description'=>'true','show_price'=>'true','show_category'=>'true','show_badge'=>'true','show_button'=>'true','title_lines'=>'2','description_lines'=>'3','radius'=>'12',
 			),
 			$atts,
 			'slim_products'
@@ -236,7 +261,7 @@ class Slim_Catalog_Shortcodes {
 						$product = Slim_Catalog_Product::get( get_the_ID() );
 
 						if ( $product ) {
-							slim_catalog_product_card( $product );
+							slim_catalog_product_card( $product, self::card_options( $atts ) );
 						}
 					endwhile;
 					wp_reset_postdata();
@@ -270,6 +295,7 @@ class Slim_Catalog_Shortcodes {
 				'show_categories'  => 'true',
 				'pagination'       => 'true',
 				'per_page'         => '12',
+				'card_style'=>'default','image_ratio'=>'square','show_description'=>'true','show_price'=>'true','show_category'=>'true','show_badge'=>'true','show_button'=>'true','title_lines'=>'2','description_lines'=>'3','radius'=>'12',
 			),
 			$atts,
 			'slim_products_all'
@@ -322,7 +348,7 @@ class Slim_Catalog_Shortcodes {
 						$product = Slim_Catalog_Product::get( get_the_ID() );
 
 						if ( $product ) {
-							slim_catalog_product_card( $product );
+							slim_catalog_product_card( $product, self::card_options( $atts ) );
 						}
 					endwhile;
 					wp_reset_postdata();
@@ -364,7 +390,7 @@ class Slim_Catalog_Shortcodes {
 			array(
 				'id'    => '',
 				'slug'  => '',
-				'style' => 'card',
+				'style' => 'default','image_ratio'=>'square','show_description'=>'true','show_price'=>'true','show_category'=>'true','show_badge'=>'true','show_button'=>'true','title_lines'=>'2','description_lines'=>'3','radius'=>'12',
 			),
 			$atts,
 			'slim_product'
@@ -377,7 +403,7 @@ class Slim_Catalog_Shortcodes {
 		}
 
 		ob_start();
-		slim_catalog_product_card( $product, array( 'style' => $atts['style'] ) );
+		slim_catalog_product_card( $product, self::card_options( $atts ) );
 		return ob_get_clean();
 	}
 
@@ -461,6 +487,14 @@ class Slim_Catalog_Shortcodes {
 	 * @param array<string, string>|string $atts Shortcode attributes.
 	 * @return array<string, string>
 	 */
+	private static function card_options( $atts ) {
+		$style = sanitize_key( $atts['card_style'] ?? ( $atts['style'] ?? 'default' ) );
+		if ( ! in_array( $style, array('default','minimal','horizontal','overlay'), true ) ) $style='default';
+		$ratio = sanitize_key( $atts['image_ratio'] ?? 'square' ); if(!in_array($ratio,array('square','landscape','portrait','auto'),true))$ratio='square';
+		$bool=function($key)use($atts){return !isset($atts[$key])||!in_array(strtolower((string)$atts[$key]),array('0','false','no','off'),true);};
+		return array('style'=>$style,'image_ratio'=>$ratio,'show_description'=>$bool('show_description'),'show_price'=>$bool('show_price'),'show_category'=>$bool('show_category'),'show_badge'=>$bool('show_badge'),'show_button'=>$bool('show_button'),'title_lines'=>max(1,min(4,absint($atts['title_lines']??2))),'description_lines'=>max(1,min(6,absint($atts['description_lines']??3))),'radius'=>max(0,min(40,absint($atts['radius']??12))));
+	}
+
 	private static function normalize_product_atts( $atts ) {
 		$atts = is_array( $atts ) ? $atts : array();
 

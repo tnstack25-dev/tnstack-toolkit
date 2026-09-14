@@ -46,8 +46,8 @@ function tnstack_toolkit_get_profiles() {
 function tnstack_toolkit_get_group_meta() {
 	return array(
 		'core'         => array(
-			'label'       => __( 'Core & Performance', 'tnstack-toolkit' ),
-			'description' => __( 'Tối ưu tốc độ, bảo mật và tiện ích hệ thống.', 'tnstack-toolkit' ),
+			'label'       => __( 'Đăng nhập & Tiện ích', 'tnstack-toolkit' ),
+			'description' => __( 'Xác thực đăng nhập và tiện ích hệ thống.', 'tnstack-toolkit' ),
 			'color'       => '#2563eb',
 		),
 		'seo'          => array(
@@ -56,8 +56,8 @@ function tnstack_toolkit_get_group_meta() {
 			'color'       => '#0891b2',
 		),
 		'ux-builder'   => array(
-			'label'       => __( 'UX Builder', 'tnstack-toolkit' ),
-			'description' => __( 'Pricing Grid Table, FAQ Accordion và Countdown Timer.', 'tnstack-toolkit' ),
+			'label'       => __( 'Shortcodes', 'tnstack-toolkit' ),
+			'description' => __( 'Bảng giá, FAQ và bộ đếm dùng hoàn toàn bằng shortcode.', 'tnstack-toolkit' ),
 			'color'       => '#7c3aed',
 		),
 		'content'      => array(
@@ -129,7 +129,7 @@ function tnstack_toolkit_get_category_labels() {
 	return array(
 		'seo'         => __( 'SEO', 'tnstack-toolkit' ),
 		'performance' => __( 'Performance', 'tnstack-toolkit' ),
-		'ux'          => __( 'UX Builder', 'tnstack-toolkit' ),
+		'ux'          => __( 'Shortcode', 'tnstack-toolkit' ),
 		'content'     => __( 'Nội dung', 'tnstack-toolkit' ),
 		'dev'         => __( 'Developer', 'tnstack-toolkit' ),
 		'branding'    => __( 'Branding', 'tnstack-toolkit' ),

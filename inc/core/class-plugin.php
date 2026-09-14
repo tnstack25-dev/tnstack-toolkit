@@ -71,7 +71,6 @@ final class TNStack_Plugin {
 		$this->booted = true;
 		$this->load_foundation();
 		TNStack_Account_Permissions::boot();
-		TNStack_Module_Manager::load_early( array( 'performance' ) );
 		TNStack_GitHub_Updater::boot();
 		add_action( 'init', array( $this, 'load_textdomain' ), -10000 );
 		add_action( 'init', array( $this, 'boot_modules' ), -9000 );

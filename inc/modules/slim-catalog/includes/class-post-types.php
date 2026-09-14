@@ -100,7 +100,7 @@ class Slim_Catalog_Post_Types {
 					'search_items'       => __( 'Search Products', 'slim-catalog' ),
 					'not_found'          => __( 'No products found', 'slim-catalog' ),
 					'not_found_in_trash' => __( 'No products found in trash', 'slim-catalog' ),
-					'menu_name'          => __( 'Slim Catalog', 'slim-catalog' ),
+					'menu_name'          => __( 'Sản phẩm', 'slim-catalog' ),
 				),
 				'public'              => true,
 				'has_archive'         => $archive_slug,

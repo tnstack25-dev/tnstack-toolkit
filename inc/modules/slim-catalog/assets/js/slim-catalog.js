@@ -201,4 +201,53 @@
 
 	document.querySelectorAll('[data-sc-gallery]').forEach(initGallery);
 	document.querySelectorAll('[data-sc-variations]').forEach(initVariations);
+
+	function equalizeProductCards(root) {
+		var cards = Array.prototype.slice.call(root.querySelectorAll('.sc-card'));
+		if (!cards.length) return;
+		cards.forEach(function (card) { card.style.height = 'auto'; });
+		var tallest = cards.reduce(function (height, card) {
+			return Math.max(height, Math.ceil(card.getBoundingClientRect().height));
+		}, 0);
+		cards.forEach(function (card) { card.style.height = tallest + 'px'; });
+
+		var slider = root.querySelector('.row-slider');
+		if (slider && window.Flickity && typeof window.Flickity.data === 'function') {
+			var instance = window.Flickity.data(slider);
+			if (instance) instance.resize();
+		}
+	}
+
+	function equalizeAllProductCards() {
+		document.querySelectorAll('.sc-products-repeater-wrap, .sc-products').forEach(equalizeProductCards);
+	}
+
+	window.requestAnimationFrame(equalizeAllProductCards);
+	window.addEventListener('load', equalizeAllProductCards);
+	var equalizeTimer;
+	window.addEventListener('resize', function () {
+		window.clearTimeout(equalizeTimer);
+		equalizeTimer = window.setTimeout(equalizeAllProductCards, 120);
+	});
+	document.addEventListener('click', function (event) {
+		var button = event.target.closest('[data-sc-hotline-reveal]');
+		if (!button) return;
+		event.preventDefault();
+		var hotline = button.getAttribute('data-hotline');
+		if (hotline) {
+			trackProductEvent(button.getAttribute('data-product-id'), 'hotline');
+			button.textContent = hotline;
+			button.setAttribute('aria-label', 'Hotline ' + hotline);
+		}
+	});
+
+	function trackProductEvent(productId, eventName) {
+		if (!productId || typeof TNStackProductStats === 'undefined') return;
+		var data = new URLSearchParams({action:'tnstack_product_event', nonce:TNStackProductStats.nonce, product_id:productId, event:eventName});
+		fetch(TNStackProductStats.ajaxUrl, {method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:data}).catch(function(){});
+	}
+	if (typeof TNStackProductStats !== 'undefined' && TNStackProductStats.viewProductId) {
+		var viewKey='tnstack_view_'+TNStackProductStats.viewProductId;
+		if (!sessionStorage.getItem(viewKey)) { sessionStorage.setItem(viewKey,'1'); trackProductEvent(TNStackProductStats.viewProductId,'view'); }
+	}
 })();

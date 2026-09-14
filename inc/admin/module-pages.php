@@ -38,7 +38,10 @@ function tnstack_toolkit_register_module_pages() {
 	$parent = TNStack_Toolkit_Features_Dashboard::PAGE_SLUG;
 
 	foreach ( tnstack_toolkit_module_settings_pages() as $slug => $page ) {
-		if ( ! tnstack_core_module_enabled( $slug ) ) {
+		// The update blocker is a project utility, not a normal module. Keep its
+		// configuration page registered for administrators even when the saved
+		// project flag is absent or was created by an older Toolkit version.
+		if ( 'disable-update-plugin' !== $slug && ! tnstack_core_module_enabled( $slug ) ) {
 			continue;
 		}
 
@@ -52,7 +55,7 @@ function tnstack_toolkit_register_module_pages() {
 			$parent,
 			$page['title'],
 			$page['title'],
-			TNStack_Account_Permissions::MANAGE_CAP,
+			'disable-update-plugin' === $slug ? 'manage_options' : TNStack_Account_Permissions::MANAGE_CAP,
 			'tnstack-mod-' . $slug,
 			$page['callback']
 		);
@@ -70,7 +73,7 @@ function tnstack_toolkit_enqueue_module_settings_assets( $hook_suffix ) {
 	unset( $hook_suffix );
 
 	$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
-	if ( ! in_array( $page, array( 'tnstack-mod-floating-contact', 'tnstack-mod-table-of-contents', 'tnstack-mod-custom-login-url', 'tnstack-mod-smtp-email', 'tnstack-github-updates', 'tnstack-export-import', TNStack_Account_Permissions::PAGE_SLUG ), true ) ) {
+	if ( ! in_array( $page, array( 'tnstack-mod-floating-contact', 'tnstack-mod-custom-login-url', 'tnstack-mod-login-authentication', 'tnstack-mod-popup-form', 'tnstack-mod-disable-update-plugin', 'tnstack-github-updates', 'tnstack-export-import', TNStack_Account_Permissions::PAGE_SLUG ), true ) ) {
 		return;
 	}
 

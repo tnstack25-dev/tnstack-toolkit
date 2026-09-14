@@ -97,18 +97,6 @@ function tnstack_toolkit_update_admin_settings( $settings ) {
 		tnstack_core_flush_config_cache();
 	}
 
-	if ( empty( $updated['modules']['performance'] ) ) {
-		$cache_file = function_exists( 'tnstack_core_path' ) ? tnstack_core_path( 'inc/core/performance/page-cache.php' ) : '';
-
-		if ( $cache_file && is_readable( $cache_file ) ) {
-			require_once $cache_file;
-		}
-
-		if ( class_exists( 'Template_Performance_Cache', false ) ) {
-			Template_Performance_Cache::update_settings( array( 'enable_page_cache' => 0 ) );
-		}
-	}
-
 	if ( ! empty( $updated['modules']['slim-catalog'] ) && ! get_option( 'slim_catalog_settings' ) ) {
 		$loaded = class_exists( 'TNStack_Module_Manager', false )
 			? TNStack_Module_Manager::load_admin( 'slim-catalog' )

@@ -1,0 +1,8 @@
+<?php
+/** Product structured data. */
+defined('ABSPATH')||exit;
+final class Slim_Catalog_Product_Schema {
+	public static function init(){add_action('wp_head',array(__CLASS__,'output'),40);}
+	public static function output(){$settings=slim_catalog_get_settings();if(!is_singular(Slim_Catalog_Post_Types::POST_TYPE)||empty($settings['schema_enabled'])||!apply_filters('tnstack_product_schema_enabled',true))return;$product=Slim_Catalog_Product::get(get_queried_object_id());if(!$product)return;$price=$product->get_price_raw();$data=array('@context'=>'https://schema.org','@type'=>'Product','name'=>$product->get_title(),'url'=>$product->get_permalink(),'description'=>wp_strip_all_tags($product->get_excerpt()?:get_the_excerpt($product->get_id())),'sku'=>$product->get_sku());$image=wp_get_attachment_image_url($product->get_image_id(),'full');if($image)$data['image']=array($image);$brand=get_post_meta($product->get_id(),'_slim_brand',true)?:$settings['default_brand'];if($brand)$data['brand']=array('@type'=>'Brand','name'=>$brand);if(null!==$price)$data['offers']=array('@type'=>'Offer','url'=>$product->get_permalink(),'price'=>(string)$price,'priceCurrency'=>$settings['currency_code']?:'VND','availability'=>get_post_meta($product->get_id(),'_slim_stock_status',true)==='outofstock'?'https://schema.org/OutOfStock':'https://schema.org/InStock','itemCondition'=>'https://schema.org/NewCondition');echo "\n<script type=\"application/ld+json\" class=\"tnstack-product-schema\">".wp_json_encode(array_filter($data),JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)."</script>\n";}
+}
+Slim_Catalog_Product_Schema::init();

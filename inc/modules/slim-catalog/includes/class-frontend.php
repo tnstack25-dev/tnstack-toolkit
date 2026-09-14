@@ -56,6 +56,10 @@ class Slim_Catalog_Frontend {
 		);
 
 		wp_add_inline_style( 'slim-catalog', self::theme_color_css() );
+		if ( self::content_has( array( 'slim_product_filter' ) ) ) {
+			wp_enqueue_script( 'slim-catalog-filters', SLIM_CATALOG_URL . 'assets/js/filters.js', array(), SLIM_CATALOG_VERSION, true );
+			wp_localize_script( 'slim-catalog-filters', 'SlimCatalogFilters', array( 'ajaxUrl' => admin_url( 'admin-ajax.php' ), 'nonce' => wp_create_nonce( 'slim_catalog_filter' ) ) );
+		}
 
 		if ( $force || self::should_enqueue_script() ) {
 			wp_enqueue_script(
@@ -65,6 +69,7 @@ class Slim_Catalog_Frontend {
 				is_readable( $script_path ) ? (string) filemtime( $script_path ) : SLIM_CATALOG_VERSION,
 				true
 			);
+			wp_localize_script( 'slim-catalog', 'TNStackProductStats', array( 'ajaxUrl'=>admin_url('admin-ajax.php'), 'nonce'=>wp_create_nonce('tnstack_product_stats'), 'viewProductId'=>is_singular(Slim_Catalog_Post_Types::POST_TYPE)?get_queried_object_id():0 ) );
 		}
 	}
 
@@ -79,12 +84,13 @@ class Slim_Catalog_Frontend {
 	 * @return bool
 	 */
 	private static function should_enqueue_script() {
-		if ( is_singular( Slim_Catalog_Post_Types::POST_TYPE ) ) {
+		if ( is_singular( Slim_Catalog_Post_Types::POST_TYPE ) || is_post_type_archive( Slim_Catalog_Post_Types::POST_TYPE ) || is_tax( Slim_Catalog_Post_Types::TAXONOMY ) ) {
 			return true;
 		}
 
 		return self::content_has(
 			array(
+				'slim_products','slim_products_all','slim_product','slim_product_filter','ux_slim_products','ux_slim_featured_products','ux_slim_latest_products',
 				'slim_product_detail',
 				'ux_slim_product_gallery',
 				'ux_slim_product_variations',
@@ -107,6 +113,7 @@ class Slim_Catalog_Frontend {
 				'slim_product',
 				'slim_product_detail',
 				'slim_product_categories',
+				'slim_product_filter',
 				'ux_slim_products',
 				'ux_slim_featured_products',
 				'ux_slim_latest_products',

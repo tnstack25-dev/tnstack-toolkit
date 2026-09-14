@@ -34,26 +34,5 @@ final class TNStack_Toolkit_Admin_Menu {
 			57
 		);
 
-		if ( tnstack_core_module_enabled( 'performance' ) && class_exists( 'TNStack_Core_Performance_Dashboard' ) ) {
-			add_submenu_page(
-				TNStack_Toolkit_Features_Dashboard::PAGE_SLUG,
-				__( 'Tối ưu & Bảo mật', 'tnstack-toolkit' ),
-				__( 'Tối ưu & Bảo mật', 'tnstack-toolkit' ),
-				TNStack_Account_Permissions::ACCESS_CAP,
-				TNStack_Core_Performance_Dashboard::PAGE_SLUG,
-				array( 'TNStack_Core_Performance_Dashboard', 'render_page' )
-			);
-		}
-
-		if ( tnstack_core_module_enabled( 'performance' ) && class_exists( 'TNStack_Security_Dashboard' ) ) {
-			add_submenu_page(
-				TNStack_Toolkit_Features_Dashboard::PAGE_SLUG,
-				__( 'WAF & Giám sát mã độc', 'tnstack-toolkit' ),
-				__( 'WAF & Mã độc', 'tnstack-toolkit' ),
-				TNStack_Account_Permissions::SECURITY_CAP,
-				TNStack_Security_Dashboard::PAGE_SLUG,
-				array( 'TNStack_Security_Dashboard', 'render_page' )
-			);
-		}
 	}
 }

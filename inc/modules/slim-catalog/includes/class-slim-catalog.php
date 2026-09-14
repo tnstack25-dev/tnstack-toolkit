@@ -43,6 +43,10 @@ final class Slim_Catalog {
 		require_once SLIM_CATALOG_PATH . 'includes/class-i18n.php';
 		require_once SLIM_CATALOG_PATH . 'includes/class-ux-product-shortcodes.php';
 		require_once SLIM_CATALOG_PATH . 'includes/class-ux-builder.php';
+		require_once SLIM_CATALOG_PATH . 'includes/class-ajax-filters.php';
+		require_once SLIM_CATALOG_PATH . 'includes/class-import-export.php';
+		require_once SLIM_CATALOG_PATH . 'includes/class-product-schema.php';
+		require_once SLIM_CATALOG_PATH . 'includes/class-product-stats.php';
 		require_once SLIM_CATALOG_PATH . 'includes/template-functions.php';
 	}
 
@@ -55,7 +59,7 @@ final class Slim_Catalog {
 		Slim_Catalog_Frontend::init();
 		Slim_Catalog_Shortcodes::init();
 		Slim_Catalog_Template_Loader::init();
-		Slim_Catalog_UX_Builder::init();
+		Slim_Catalog_UX_Product_Shortcodes::init();
 	}
 
 	/**

@@ -11,10 +11,9 @@ return array(
 	'profile' => 'standard',
 
 	'modules' => array(
-		'performance'            => true,
-		'webp-converter'         => true,
+		'login-authentication' => true,
+		'popup-form'           => true,
 		'disable-comments'     => true,
-		'center-image'         => true,
 		'pricing-grid-table'   => true,
 		'faq-accordion'        => true,
 		'countdown-timer'      => true,

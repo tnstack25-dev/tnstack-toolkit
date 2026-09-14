@@ -45,12 +45,6 @@ final class TNStack_Plugin_Lifecycle {
 			}
 		}
 
-		if ( tnstack_core_module_enabled( 'performance' ) ) {
-			require_once tnstack_core_path( 'inc/core/performance/advanced-cache.php' );
-			require_once tnstack_core_path( 'inc/core/performance/page-cache.php' );
-			TNStack_Advanced_Cache::sync( Template_Performance_Cache::settings() );
-		}
-
 		flush_rewrite_rules();
 		delete_option( self::FLUSH_OPTION );
 	}
@@ -59,15 +53,7 @@ final class TNStack_Plugin_Lifecycle {
 	 * Deactivate the plugin.
 	 */
 	public static function deactivate() {
-		wp_clear_scheduled_hook( 'tnstack_malware_monitor_scan' );
-		wp_clear_scheduled_hook( 'tnstack_cache_preload_worker' );
-		delete_option( 'tnstack_cache_preload_lock' );
-
-		$advanced_cache = tnstack_core_path( 'inc/core/performance/advanced-cache.php' );
-		if ( is_readable( $advanced_cache ) ) {
-			require_once $advanced_cache;
-			TNStack_Advanced_Cache::uninstall();
-		}
+		wp_clear_scheduled_hook( 'tnstack_popup_cleanup_leads' );
 		flush_rewrite_rules();
 	}
 

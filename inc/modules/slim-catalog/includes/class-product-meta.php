@@ -35,6 +35,14 @@ class Slim_Catalog_Product_Meta {
 		$gallery           = (array) get_post_meta( $post->ID, '_slim_gallery', true );
 		$short_description = get_post_meta( $post->ID, '_slim_short_description', true );
 		$featured          = (bool) get_post_meta( $post->ID, '_slim_featured', true );
+		$cta_mode          = get_post_meta( $post->ID, '_slim_cta_mode', true ) ?: 'inherit';
+		$cta_label         = get_post_meta( $post->ID, '_slim_cta_label', true );
+		$cta_hotline       = get_post_meta( $post->ID, '_slim_cta_hotline', true );
+		$cta_url           = get_post_meta( $post->ID, '_slim_cta_url', true );
+		$cta_recipient     = get_post_meta( $post->ID, '_slim_cta_recipient', true );
+		$cta_form_id       = absint( get_post_meta( $post->ID, '_slim_cta_form_id', true ) );
+		$brand             = get_post_meta( $post->ID, '_slim_brand', true );
+		$stock_status      = get_post_meta( $post->ID, '_slim_stock_status', true ) ?: 'instock';
 
 		$gallery_string = implode( ',', array_map( 'intval', $gallery ) );
 		?>
@@ -68,6 +76,20 @@ class Slim_Catalog_Product_Meta {
 				<label for="slim_short_description"><strong><?php esc_html_e( 'Short Description', 'slim-catalog' ); ?></strong></label>
 				<textarea id="slim_short_description" name="slim_short_description" rows="3" class="widefat"><?php echo esc_textarea( $short_description ); ?></textarea>
 			</p>
+
+			<div class="slim-catalog-cta-settings" style="margin:18px 0;padding:18px;border:1px solid #dbe3ef;border-radius:12px;background:#f8fafc">
+				<h3 style="margin-top:0">Nút mua hàng riêng</h3>
+				<p class="description">Để “Theo cài đặt chung” nếu sản phẩm này không cần hành động riêng.</p>
+				<div class="slim-catalog-admin-meta__grid">
+					<p><label for="slim_cta_mode"><strong>Hành động</strong></label><select class="widefat" id="slim_cta_mode" name="slim_cta_mode"><option value="inherit" <?php selected( $cta_mode, 'inherit' ); ?>>Theo cài đặt chung</option><option value="hotline" <?php selected( $cta_mode, 'hotline' ); ?>>Hiện hotline</option><option value="form" <?php selected( $cta_mode, 'form' ); ?>>Mở form liên hệ</option><option value="zalo" <?php selected( $cta_mode, 'zalo' ); ?>>Mở Zalo</option><option value="url" <?php selected( $cta_mode, 'url' ); ?>>URL tùy chỉnh</option><option value="hidden" <?php selected( $cta_mode, 'hidden' ); ?>>Ẩn nút</option></select></p>
+					<p><label for="slim_cta_label"><strong>Nội dung nút</strong></label><input class="widefat" id="slim_cta_label" name="slim_cta_label" value="<?php echo esc_attr( $cta_label ); ?>" placeholder="Để trống để dùng nội dung chung"></p>
+					<p><label for="slim_cta_hotline"><strong>Hotline/Zalo riêng</strong></label><input class="widefat" id="slim_cta_hotline" name="slim_cta_hotline" value="<?php echo esc_attr( $cta_hotline ); ?>" placeholder="0901 234 567"></p>
+					<p><label for="slim_cta_url"><strong>URL tùy chỉnh</strong></label><input type="url" class="widefat" id="slim_cta_url" name="slim_cta_url" value="<?php echo esc_attr( $cta_url ); ?>" placeholder="https://..."></p>
+				</div>
+				<p><label for="slim_cta_recipient"><strong>Email nhận form riêng</strong></label><input type="email" class="widefat" id="slim_cta_recipient" name="slim_cta_recipient" value="<?php echo esc_attr( $cta_recipient ); ?>" placeholder="Để trống để dùng email chung"></p>
+				<?php if ( post_type_exists( 'tnstack_form' ) ) : $forms = get_posts( array( 'post_type'=>'tnstack_form','post_status'=>'publish','posts_per_page'=>-1 ) ); ?><p><label for="slim_cta_form_id"><strong>Biểu mẫu sẽ mở</strong></label><select class="widefat" id="slim_cta_form_id" name="slim_cta_form_id"><option value="0">Form mặc định</option><?php foreach($forms as$form): ?><option value="<?php echo absint($form->ID); ?>" <?php selected($cta_form_id,$form->ID); ?>><?php echo esc_html($form->post_title); ?></option><?php endforeach; ?></select></p><?php endif; ?>
+			</div>
+			<div class="slim-catalog-admin-meta__grid"><p><label for="slim_brand"><strong>Thương hiệu (Schema)</strong></label><input class="widefat" id="slim_brand" name="slim_brand" value="<?php echo esc_attr($brand); ?>"></p><p><label for="slim_stock_status"><strong>Tình trạng kho</strong></label><select class="widefat" id="slim_stock_status" name="slim_stock_status"><option value="instock" <?php selected($stock_status,'instock'); ?>>Còn hàng</option><option value="outofstock" <?php selected($stock_status,'outofstock'); ?>>Hết hàng</option></select></p></div>
 
 			<p>
 				<label>
@@ -117,6 +139,8 @@ class Slim_Catalog_Product_Meta {
 		$gallery    = isset( $_POST['slim_gallery'] ) ? sanitize_text_field( wp_unslash( $_POST['slim_gallery'] ) ) : '';
 		$short_desc = isset( $_POST['slim_short_description'] ) ? sanitize_textarea_field( wp_unslash( $_POST['slim_short_description'] ) ) : '';
 		$featured   = ! empty( $_POST['slim_featured'] );
+		$cta_mode   = sanitize_key( wp_unslash( $_POST['slim_cta_mode'] ?? 'inherit' ) );
+		if ( ! in_array( $cta_mode, array( 'inherit', 'hotline', 'form', 'zalo', 'url', 'hidden' ), true ) ) $cta_mode = 'inherit';
 
 		$gallery_ids = array_filter( array_map( 'intval', explode( ',', $gallery ) ) );
 
@@ -127,5 +151,13 @@ class Slim_Catalog_Product_Meta {
 		update_post_meta( $post_id, '_slim_gallery', $gallery_ids );
 		update_post_meta( $post_id, '_slim_short_description', $short_desc );
 		update_post_meta( $post_id, '_slim_featured', $featured ? '1' : '' );
+		update_post_meta( $post_id, '_slim_cta_mode', $cta_mode );
+		update_post_meta( $post_id, '_slim_cta_label', sanitize_text_field( wp_unslash( $_POST['slim_cta_label'] ?? '' ) ) );
+		update_post_meta( $post_id, '_slim_cta_hotline', sanitize_text_field( wp_unslash( $_POST['slim_cta_hotline'] ?? '' ) ) );
+		update_post_meta( $post_id, '_slim_cta_url', esc_url_raw( wp_unslash( $_POST['slim_cta_url'] ?? '' ) ) );
+		update_post_meta( $post_id, '_slim_cta_recipient', sanitize_email( wp_unslash( $_POST['slim_cta_recipient'] ?? '' ) ) );
+		update_post_meta( $post_id, '_slim_cta_form_id', absint( $_POST['slim_cta_form_id'] ?? 0 ) );
+		update_post_meta( $post_id, '_slim_brand', sanitize_text_field( wp_unslash( $_POST['slim_brand'] ?? '' ) ) );
+		update_post_meta( $post_id, '_slim_stock_status', ( $_POST['slim_stock_status'] ?? '' ) === 'outofstock' ? 'outofstock' : 'instock' );
 	}
 }

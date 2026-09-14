@@ -18,10 +18,14 @@ function slim_catalog_default_settings() {
 		'archive_slug'      => 'san-pham',
 		'single_slug'       => 'san-pham',
 		'cta_label'         => __( 'Contact Us Now', 'slim-catalog' ),
+		'cta_mode'          => 'hotline',
 		'hotline'           => '',
 		'zalo'              => '',
 		'email'             => '',
 		'address'           => '',
+		'schema_enabled'    => '1',
+		'currency_code'     => 'VND',
+		'default_brand'     => '',
 	);
 }
 
@@ -184,7 +188,8 @@ function slim_catalog_format_price( $regular, $sale = null ) {
 		return '';
 	}
 
-	$formatted = number_format_i18n( (float) $active, 2 );
+	// Vietnamese đồng does not use fractional currency units in display prices.
+	$formatted = number_format_i18n( (float) $active, 0 );
 
 	if ( 'after' === $settings['currency_position'] ) {
 		return $formatted . $symbol;
@@ -228,6 +233,35 @@ function slim_catalog_get_cta_url( $product = null ) {
 	$url = slim_catalog_get_contact_url();
 
 	return $url ? $url : '#';
+}
+
+function slim_catalog_render_cta( $product = null, $class = 'sc-button' ) {
+	$settings = slim_catalog_get_settings();
+	$id       = $product instanceof Slim_Catalog_Product ? $product->get_id() : 0;
+	$name     = $product instanceof Slim_Catalog_Product ? $product->get_title() : '';
+	$mode     = $id ? get_post_meta( $id, '_slim_cta_mode', true ) : '';
+	$mode     = $mode && 'inherit' !== $mode ? $mode : ( $settings['cta_mode'] ?? 'hotline' );
+	$label    = $id ? get_post_meta( $id, '_slim_cta_label', true ) : '';
+	$label    = $label ?: $settings['cta_label'];
+	$hotline  = $id ? get_post_meta( $id, '_slim_cta_hotline', true ) : '';
+	$hotline  = $hotline ?: $settings['hotline'];
+
+	if ( 'hidden' === $mode ) return '';
+
+	if ( 'form' === $mode ) {
+		$form_id = $id ? absint( get_post_meta( $id, '_slim_cta_form_id', true ) ) : 0;
+		return sprintf( '<button type="button" class="%1$s" data-tn-popup-open data-form-id="%5$s" data-product-id="%2$d" data-product-name="%3$s">%4$s</button>', esc_attr( $class ), $id, esc_attr( $name ), esc_html( $label ), $form_id ?: 'default' );
+	}
+	if ( 'url' === $mode ) {
+		$url = $id ? esc_url( get_post_meta( $id, '_slim_cta_url', true ) ) : '';
+		return $url ? sprintf( '<a class="%1$s" href="%2$s">%3$s</a>', esc_attr( $class ), $url, esc_html( $label ) ) : '';
+	}
+	if ( 'zalo' === $mode ) {
+		$url = slim_catalog_format_zalo_link( $hotline ?: $settings['zalo'] );
+		return $url ? sprintf( '<a class="%1$s" href="%2$s" target="_blank" rel="noopener">%3$s</a>', esc_attr( $class ), esc_url( $url ), esc_html( $label ) ) : '';
+	}
+
+	return sprintf( '<button type="button" class="%1$s" data-sc-hotline-reveal data-product-id="%4$d" data-hotline="%2$s">%3$s</button>', esc_attr( $class ), esc_attr( slim_catalog_format_phone_display( $hotline ) ), esc_html( $label ), $id );
 }
 
 /**

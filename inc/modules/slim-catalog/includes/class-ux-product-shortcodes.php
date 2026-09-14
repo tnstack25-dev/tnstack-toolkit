@@ -11,7 +11,6 @@ class Slim_Catalog_UX_Product_Shortcodes {
 
 	public static function init() {
 		add_action( 'init', array( __CLASS__, 'register_shortcodes' ), 15 );
-		add_action( 'init', array( __CLASS__, 'register_ux_builder_post_type' ), 11 );
 	}
 
 	public static function register_ux_builder_post_type() {
@@ -417,7 +416,7 @@ class Slim_Catalog_UX_Product_Shortcodes {
 
 		$class = $atts['size'] ? ' sc-button--' . sanitize_html_class( $atts['size'] ) : '';
 
-		return '<div class="sc-product-cta product-contact-container"><a class="sc-button button primary' . esc_attr( $class ) . '" href="' . esc_url( slim_catalog_get_cta_url( $product ) ) . '">' . esc_html( $settings['cta_label'] ) . '</a></div>';
+		return '<div class="sc-product-cta product-contact-container">' . slim_catalog_render_cta( $product, 'sc-button button primary' . $class ) . '</div>';
 	}
 
 	/**

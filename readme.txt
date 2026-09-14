@@ -1,13 +1,13 @@
 === TNStack Toolkit ===
 Contributors: tnstack
-Tags: performance, security, catalog, ux builder, wordpress toolkit
+Tags: products, shortcodes, popup form, login, wordpress toolkit
 Requires at least: 6.0
 Requires PHP: 7.4
-Stable tag: 2.4.0
+Stable tag: 3.3.1
 License: GPLv2 or later
 
-TNStack Toolkit cung cấp các module hiệu năng, bảo mật, nội dung, Slim Catalog
-và thành phần mở rộng cho Flatsome UX Builder.
+TNStack Toolkit cung cấp phần Sản phẩm, shortcode nội dung, Popup Form và
+các tiện ích đăng nhập cho WordPress.
 
 == Description ==
 
@@ -16,12 +16,23 @@ các plugin khác. Mỗi module có thể bật hoặc tắt độc lập trong 
 
 Các nhóm tính năng chính:
 
-* Tối ưu hiệu năng và bảo mật.
-* Slim Catalog và trang chi tiết sản phẩm.
-* Table of Contents phân cấp, dark mode và thu gọn.
-* Đổi URL đăng nhập quản trị.
-* Thành phần mở rộng cho Flatsome UX Builder.
-* SMTP, analytics, redirect, cookie và các tiện ích nội dung.
+* Sản phẩm và trang chi tiết sản phẩm.
+* Xác thực, đổi URL và tùy chỉnh trang đăng nhập.
+* Shortcode bảng giá, FAQ, bộ đếm và sản phẩm.
+* Popup Form tích hợp với nút mua hàng.
+* Hộp thư yêu cầu liên hệ, trạng thái xử lý và xuất CSV.
+* Trình tạo shortcode sản phẩm có xem trước.
+* Nút mua hàng cấu hình riêng theo từng sản phẩm.
+* Cookie và các tiện ích nội dung.
+* Trang chọn plugin cần chặn cập nhật.
+* Bộ lọc sản phẩm AJAX và tải thêm không tải lại trang.
+* Nhập, xuất sản phẩm bằng CSV và chế độ kiểm tra trước khi nhập.
+* Nhiều Popup Form với quy tắc theo thời gian, cuộn trang, thoát trang và URL.
+* Lịch sử đăng nhập cùng thao tác mở khóa IP.
+* Webhook/CRM có chữ ký HMAC, lịch sử gửi và gửi lại.
+* Product Schema JSON-LD có thể bật/tắt.
+* Thống kê lượt xem, nhấp hotline và gửi form không lưu IP.
+* Bốn mẫu card: mặc định, tối giản, ngang và overlay.
 
 == Installation ==
 
@@ -67,6 +78,28 @@ Lỗi được cô lập ở module tương ứng. Các module còn lại tiếp
 quản trị viên nhận được thông báo để kiểm tra.
 
 == Changelog ==
+
+= 3.3.1 =
+
+* Thiết kế lại trang quản lý tính năng với bố cục, card, sidebar và thanh lưu hiện đại.
+* Thêm hệ giao diện quản trị thống nhất cho toàn bộ trang con của Toolkit và Sản phẩm.
+* Cải thiện bảng, biểu mẫu, bộ lọc, thông báo, nút bấm và giao diện responsive.
+* Thêm cảnh báo thay đổi chưa lưu và các lối tắt quản trị quan trọng.
+
+= 3.3.0 =
+
+* Thêm tối đa ba kết nối webhook/CRM, kiểm tra kết nối, chữ ký HMAC và gửi lại khi lỗi.
+* Thêm Product Schema với giá, tiền tệ, SKU, thương hiệu và tình trạng kho.
+* Thêm thống kê sản phẩm theo 7, 30, 90 hoặc 365 ngày.
+* Thêm card mặc định, tối giản, ngang, overlay và các tùy chọn shortcode liên quan.
+
+= 3.2.0 =
+
+* Thêm bộ lọc sản phẩm AJAX theo từ khóa, SKU, danh mục, giá và thứ tự.
+* Thêm nhập/xuất CSV cho sản phẩm.
+* Thêm nhiều biểu mẫu Popup, shortcode nút mở form và quy tắc hiển thị.
+* Cho phép chọn biểu mẫu riêng trên từng sản phẩm.
+* Thêm lịch sử đăng nhập, bộ lọc và mở khóa IP.
 
 = 2.4.0 =
 

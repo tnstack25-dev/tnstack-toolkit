@@ -3,8 +3,8 @@
  * Plugin Name: TNStack Toolkit
  * Plugin URI: https://tnstack.com
  * Update URI: https://github.com/tnstack25-dev/tnstack-toolkit
- * Description: Performance, security, Slim Catalog, and modular UX Builder extensions for WordPress (Flatsome).
- * Version: 2.4.0
+ * Description: Bộ công cụ sản phẩm, shortcode, biểu mẫu popup và tùy chỉnh đăng nhập cho WordPress.
+ * Version: 3.3.1
  * Author: TNStack
  * Text Domain: tnstack-toolkit
  * Requires at least: 6.0
@@ -16,7 +16,7 @@
 defined( 'ABSPATH' ) || exit;
 
 if ( ! defined( 'TNSTACK_TOOLKIT_VERSION' ) ) {
-	define( 'TNSTACK_TOOLKIT_VERSION', '2.4.0' );
+	define( 'TNSTACK_TOOLKIT_VERSION', '3.3.1' );
 }
 
 if ( ! defined( 'TNSTACK_TOOLKIT_FILE' ) ) {

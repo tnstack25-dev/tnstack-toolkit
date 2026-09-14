@@ -17,15 +17,33 @@ final class TNStack_Toolkit_Features_Dashboard {
 	public static function boot() {
 		add_action( 'admin_init', array( __CLASS__, 'handle_settings_save' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
+		add_filter( 'admin_body_class', array( __CLASS__, 'admin_body_class' ) );
+	}
+
+	private static function is_toolkit_screen( $hook = '' ) {
+		$page = sanitize_key( wp_unslash( $_GET['page'] ?? '' ) );
+		$post_type = sanitize_key( wp_unslash( $_GET['post_type'] ?? '' ) );
+		if ( in_array( $post_type, array( 'slim_product', 'tnstack_lead', 'tnstack_form' ), true ) ) return true;
+		if ( function_exists( 'get_current_screen' ) ) { $screen=get_current_screen(); if ( $screen && in_array( $screen->post_type, array( 'slim_product','tnstack_lead','tnstack_form' ), true ) ) return true; }
+		if ( 0 === strpos( $page, 'tnstack' ) || 0 === strpos( $page, 'slim-catalog' ) ) return true;
+		return 'toplevel_page_' . self::PAGE_SLUG === $hook;
+	}
+
+	public static function admin_body_class( $classes ) {
+		return self::is_toolkit_screen() ? $classes . ' tnstack-admin-suite' : $classes;
 	}
 
 	/**
 	 * @param string $hook Current admin page hook.
 	 */
 	public static function enqueue_assets( $hook ) {
-		if ( 'toplevel_page_' . self::PAGE_SLUG !== $hook ) {
+		if ( ! self::is_toolkit_screen( $hook ) ) {
 			return;
 		}
+		$suite_path = tnstack_core_path( 'assets/css/toolkit-suite-admin.css' );
+		wp_enqueue_style( 'tnstack-toolkit-suite-admin', tnstack_core_uri( 'assets/css/toolkit-suite-admin.css' ), array(), tnstack_core_asset_version( $suite_path ) );
+
+		if ( 'toplevel_page_' . self::PAGE_SLUG !== $hook ) return;
 
 		$css_path = tnstack_core_path( 'assets/css/toolkit-admin.css' );
 		$js_path  = tnstack_core_path( 'assets/js/toolkit-admin.js' );
@@ -201,6 +219,7 @@ final class TNStack_Toolkit_Features_Dashboard {
 				<div class="ttk-layout">
 					<aside class="ttk-sidebar">
 						<div class="ttk-search">
+							<span class="dashicons dashicons-search ttk-search__icon" aria-hidden="true"></span>
 							<input type="search" class="ttk-search__input" placeholder="<?php esc_attr_e( 'Tìm module...', 'tnstack-toolkit' ); ?>" autocomplete="off">
 						</div>
 						<nav class="ttk-nav" aria-label="<?php esc_attr_e( 'Nhóm tính năng', 'tnstack-toolkit' ); ?>">
@@ -248,20 +267,13 @@ final class TNStack_Toolkit_Features_Dashboard {
 							}
 						}
 
-						if ( tnstack_core_module_enabled( 'performance' ) && class_exists( 'TNStack_Core_Performance_Dashboard' ) ) {
-							$quick_links[] = array(
-								'url'   => admin_url( 'admin.php?page=' . TNStack_Core_Performance_Dashboard::PAGE_SLUG ),
-								'label' => __( 'Tối ưu & Bảo mật', 'tnstack-toolkit' ),
-								'icon'  => 'shield-alt',
-							);
-						}
-
-						if ( tnstack_core_module_enabled( 'slim-catalog' ) ) {
+		if ( tnstack_core_module_enabled( 'slim-catalog' ) ) {
 							$quick_links[] = array(
 								'url'   => admin_url( 'edit.php?post_type=slim_product' ),
-								'label' => __( 'Slim Catalog', 'tnstack-toolkit' ),
+								'label' => __( 'Sản phẩm', 'tnstack-toolkit' ),
 								'icon'  => 'store',
 							);
+							$quick_links[] = array( 'url'=>admin_url('edit.php?post_type=slim_product&page=slim-catalog-stats'), 'label'=>'Thống kê sản phẩm', 'icon'=>'chart-bar' );
 						}
 
 						$quick_links[] = array(
@@ -269,6 +281,12 @@ final class TNStack_Toolkit_Features_Dashboard {
 							'label' => __( 'Export / Import', 'tnstack-toolkit' ),
 							'icon'  => 'download',
 						);
+						if ( tnstack_core_module_enabled( 'popup-form' ) ) {
+							$quick_links[] = array( 'url'=>admin_url('edit.php?post_type=tnstack_lead'), 'label'=>'Yêu cầu liên hệ', 'icon'=>'email-alt' );
+							$quick_links[] = array( 'url'=>admin_url('edit.php?post_type=tnstack_form'), 'label'=>'Biểu mẫu Popup', 'icon'=>'feedback' );
+							$quick_links[] = array( 'url'=>admin_url('admin.php?page=tnstack-webhooks'), 'label'=>'Webhook & CRM', 'icon'=>'rest-api' );
+						}
+						if ( tnstack_core_module_enabled( 'login-authentication' ) ) $quick_links[] = array( 'url'=>admin_url('admin.php?page=tnstack-login-history'), 'label'=>'Lịch sử đăng nhập', 'icon'=>'backup' );
 
 						if ( ! empty( $quick_links ) ) :
 							?>

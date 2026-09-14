@@ -11,7 +11,6 @@ defined( 'ABSPATH' ) || exit;
 $settings   = slim_catalog_get_settings();
 $gallery    = $product->get_gallery_ids();
 $badge      = $product->get_badge();
-$cta_url    = slim_catalog_get_cta_url( $product );
 $categories = $product->get_categories();
 ?>
 <article class="sc-detail" data-sc-product-detail data-product-id="<?php echo esc_attr( $product->get_id() ); ?>">
@@ -81,9 +80,7 @@ $categories = $product->get_categories();
 		<?php endif; ?>
 
 		<div class="sc-detail__actions">
-			<a class="sc-button" href="<?php echo esc_url( $cta_url ); ?>">
-				<?php echo esc_html( $settings['cta_label'] ); ?>
-			</a>
+			<?php echo wp_kses_post( slim_catalog_render_cta( $product ) ); ?>
 		</div>
 
 		<?php slim_catalog_get_template( 'contact-info' ); ?>
