@@ -27,6 +27,8 @@ final class TNStack_Module_Manifest {
 		}
 
 		self::$definitions = array(
+			'custom-admin-dashboard' => self::entry( 'core', self::CONFIG_MODULES, true, 'simple', 'inc/modules/custom-admin-dashboard.php', __( 'Giao diện Dashboard', 'tnstack-toolkit' ), __( 'Dashboard quản trị hiện đại với số liệu thật, hoạt động gần đây và lối tắt.', 'tnstack-toolkit' ), 'dashboard', 'branding' ),
+			'custom-login-interface' => self::entry( 'core', self::CONFIG_MODULES, true, 'simple', 'inc/modules/custom-login-interface.php', __( 'Giao diện đăng nhập', 'tnstack-toolkit' ), __( 'Giao diện đăng nhập hai cột, responsive và đồng bộ nhận diện website.', 'tnstack-toolkit' ), 'admin-customizer', 'branding' ),
 			'login-authentication'   => self::entry( 'core', self::CONFIG_MODULES, true, 'simple', 'inc/modules/login-authentication.php', __( 'Xác thực đăng nhập', 'tnstack-toolkit' ), __( 'CAPTCHA, honeypot và giới hạn đăng nhập sai tại trang login.', 'tnstack-toolkit' ), 'shield', 'security', 'tnstack_login_authentication_render_admin' ),
 			'cf7-honeypot'           => self::entry( 'core', self::CONFIG_MODULES, true, 'simple', 'inc/modules/cf7-honeypot.php', __( 'CF7 Honeypot', 'tnstack-toolkit' ), __( 'Chống spam Contact Form 7.', 'tnstack-toolkit' ), 'shield', 'security' ),
 			'maintenance-mode'       => self::entry( 'core', self::CONFIG_MODULES, false, 'simple', 'inc/modules/maintenance-mode.php', __( 'Maintenance Mode', 'tnstack-toolkit' ), __( 'Chế độ bảo trì website.', 'tnstack-toolkit' ), 'hammer', 'system', 'tnstack_maintenance_render_admin' ),

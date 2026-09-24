@@ -3,7 +3,7 @@ Contributors: tnstack
 Tags: products, shortcodes, popup form, login, wordpress toolkit
 Requires at least: 6.0
 Requires PHP: 7.4
-Stable tag: 3.3.1
+Stable tag: 3.4.2
 License: GPLv2 or later
 
 TNStack Toolkit cung cấp phần Sản phẩm, shortcode nội dung, Popup Form và
@@ -33,6 +33,8 @@ Các nhóm tính năng chính:
 * Product Schema JSON-LD có thể bật/tắt.
 * Thống kê lượt xem, nhấp hotline và gửi form không lưu IP.
 * Bốn mẫu card: mặc định, tối giản, ngang và overlay.
+* Giao diện Dashboard quản trị hiện đại với thống kê nội dung thật.
+* Giao diện đăng nhập responsive, tự nhận logo và tên website.
 
 == Installation ==
 
@@ -78,6 +80,22 @@ Lỗi được cô lập ở module tương ứng. Các module còn lại tiếp
 quản trị viên nhận được thông báo để kiểm tra.
 
 == Changelog ==
+
+= 3.4.2 =
+
+* Ẩn hoàn toàn nội dung chào mừng mặc định của WordPress trên Dashboard tùy chỉnh.
+
+= 3.4.1 =
+
+* Thiết kế lại cột biểu mẫu đăng nhập thành card độc lập, cân đối trên desktop và mobile.
+* Sửa selector nút đăng nhập và xung đột bố cục với CSS mặc định của WordPress.
+* Đồng bộ giao diện ghi nhớ đăng nhập, thông báo, liên kết và bộ chọn ngôn ngữ.
+
+= 3.4.0 =
+
+* Thêm module Giao diện Dashboard với thống kê nội dung, WooCommerce, biểu đồ hoạt động, thao tác nhanh và hoạt động gần đây.
+* Thêm module Giao diện đăng nhập hai cột, responsive, hỗ trợ logo website và các màn hình quên/đặt lại mật khẩu.
+* Biểu đồ Dashboard sử dụng dữ liệu xuất bản thật và mã nội bộ, không phụ thuộc thư viện CDN.
 
 = 3.3.1 =
 

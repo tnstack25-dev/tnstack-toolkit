@@ -11,6 +11,8 @@ return array(
 	'profile' => 'standard',
 
 	'modules' => array(
+		'custom-admin-dashboard' => true,
+		'custom-login-interface' => true,
 		'login-authentication' => true,
 		'popup-form'           => true,
 		'disable-comments'     => true,
