@@ -15,6 +15,7 @@ function slim_catalog_default_settings() {
 		'currency_symbol'   => '$',
 		'currency_position' => 'before',
 		'color_mode'        => 'light',
+		'primary_color'     => '#446084',
 		'archive_slug'      => 'san-pham',
 		'single_slug'       => 'san-pham',
 		'cta_label'         => __( 'Contact Us Now', 'slim-catalog' ),
@@ -23,7 +24,7 @@ function slim_catalog_default_settings() {
 		'zalo'              => '',
 		'email'             => '',
 		'address'           => '',
-		'schema_enabled'    => '1',
+		'schema_enabled'    => '0',
 		'currency_code'     => 'VND',
 		'default_brand'     => '',
 	);

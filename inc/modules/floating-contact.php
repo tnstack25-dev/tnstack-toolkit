@@ -16,7 +16,7 @@ add_action('wp_footer', 'tnstack_floating_contact_render', 50);
 function tnstack_floating_contact_defaults()
 {
 	return array(
-		'enabled' => 1,
+		'enabled' => 0,
 		'zalo' => '',
 		'show_zalo_number' => 0,
 		'phone' => '',
@@ -72,6 +72,7 @@ function tnstack_floating_contact_render_admin()
 		tnstack_module_update_settings(
 			'floating-contact',
 			array(
+				'enabled' => isset($_POST['enabled']) ? 1 : 0,
 				'zalo' => sanitize_text_field(wp_unslash($_POST['zalo'] ?? '')),
 				'show_zalo_number' => isset($_POST['show_zalo_number']) ? 1 : 0,
 				'phone' => sanitize_text_field(wp_unslash($_POST['phone'] ?? '')),
@@ -114,46 +115,50 @@ function tnstack_floating_contact_render_admin()
 				</div>
 				<table class="form-table" role="presentation">
 					<tr>
+						<th scope="row"><?php esc_html_e('Trạng thái', 'tnstack-toolkit'); ?></th>
+						<td><label><input type="checkbox" name="enabled" value="1" data-tnstack-feature-toggle="floating-contact" <?php checked(!empty($s['enabled'])); ?>> <?php esc_html_e('Bật các nút liên hệ nổi', 'tnstack-toolkit'); ?></label></td>
+					</tr>
+					<tr data-tnstack-feature-panel="floating-contact">
 						<th scope="row"><label for="tnstack_fc_zalo"><?php esc_html_e('Zalo', 'tnstack-toolkit'); ?></label></th>
 						<td>
 							<input type="tel" id="tnstack_fc_zalo" name="zalo" class="regular-text" value="<?php echo esc_attr($s['zalo']); ?>" placeholder="0123.456.798">
 							<label><input type="checkbox" name="show_zalo_number" value="1" <?php checked(!empty($s['show_zalo_number'])); ?>> <?php esc_html_e('Hiển thị số bên cạnh nút', 'tnstack-toolkit'); ?></label>
 						</td>
 					</tr>
-					<tr>
+					<tr data-tnstack-feature-panel="floating-contact">
 						<th scope="row"><label for="tnstack_fc_phone"><?php esc_html_e('Số điện thoại 1', 'tnstack-toolkit'); ?></label></th>
 						<td>
 							<input type="tel" id="tnstack_fc_phone" name="phone" class="regular-text" value="<?php echo esc_attr($s['phone']); ?>" placeholder="0123.456.798">
 							<label><input type="checkbox" name="show_phone_number" value="1" <?php checked(!empty($s['show_phone_number'])); ?>> <?php esc_html_e('Hiển thị số bên cạnh nút', 'tnstack-toolkit'); ?></label>
 						</td>
 					</tr>
-					<tr>
+					<tr data-tnstack-feature-panel="floating-contact">
 						<th scope="row"><label for="tnstack_fc_phone_2"><?php esc_html_e('Số điện thoại 2', 'tnstack-toolkit'); ?></label></th>
 						<td>
 							<input type="tel" id="tnstack_fc_phone_2" name="phone_2" class="regular-text" value="<?php echo esc_attr($s['phone_2']); ?>" placeholder="0987.654.321">
 							<label><input type="checkbox" name="show_phone_2_number" value="1" <?php checked(!empty($s['show_phone_2_number'])); ?>> <?php esc_html_e('Hiển thị số bên cạnh nút', 'tnstack-toolkit'); ?></label>
 						</td>
 					</tr>
-					<tr>
+					<tr data-tnstack-feature-panel="floating-contact">
 						<th scope="row"><label for="tnstack_fc_whatsapp">WhatsApp</label></th>
 						<td>
 							<input type="tel" id="tnstack_fc_whatsapp" name="whatsapp" class="regular-text" value="<?php echo esc_attr($s['whatsapp']); ?>" placeholder="84123456789">
 							<p class="description"><?php esc_html_e('Nhập mã quốc gia, không dùng dấu cộng.', 'tnstack-toolkit'); ?></p>
 						</td>
 					</tr>
-					<tr>
+					<tr data-tnstack-feature-panel="floating-contact">
 						<th scope="row"><label for="tnstack_fc_messenger">Messenger</label></th>
 						<td><input type="url" id="tnstack_fc_messenger" name="messenger" class="regular-text" value="<?php echo esc_attr($s['messenger']); ?>" placeholder="https://m.me/page"></td>
 					</tr>
-					<tr>
+					<tr data-tnstack-feature-panel="floating-contact">
 						<th scope="row"><label for="tnstack_fc_facebook">Facebook</label></th>
 						<td><input type="url" id="tnstack_fc_facebook" name="facebook" class="regular-text" value="<?php echo esc_attr($s['facebook']); ?>" placeholder="https://www.facebook.com/page"></td>
 					</tr>
-					<tr>
+					<tr data-tnstack-feature-panel="floating-contact">
 						<th scope="row"><label for="tnstack_fc_tiktok">TikTok</label></th>
 						<td><input type="url" id="tnstack_fc_tiktok" name="tiktok" class="regular-text" value="<?php echo esc_attr($s['tiktok']); ?>" placeholder="https://www.tiktok.com/@username"></td>
 					</tr>
-					<tr>
+					<tr data-tnstack-feature-panel="floating-contact">
 						<th scope="row"><label for="tnstack_fc_position"><?php esc_html_e('Vị trí hiển thị', 'tnstack-toolkit'); ?></label></th>
 						<td>
 							<select id="tnstack_fc_position" name="position">
@@ -179,6 +184,9 @@ function tnstack_floating_contact_get_links()
 {
 	$s = tnstack_floating_contact_settings();
 	$links = array();
+	if (empty($s['enabled'])) {
+		return $links;
+	}
 
 	if (!empty($s['zalo'])) {
 		$links[] = array(

@@ -160,21 +160,16 @@ class Slim_Catalog_Frontend {
 	 * @return string
 	 */
 	private static function theme_color_css() {
-		$primary   = '#446084';
+		$settings  = slim_catalog_get_settings();
+		$primary   = sanitize_hex_color( $settings['primary_color'] ?? '' ) ?: '#446084';
 		$secondary = '#d26e4b';
 
 		if ( function_exists( 'get_theme_mod' ) ) {
-			if ( get_theme_mod( 'color_primary' ) ) {
-				$primary = get_theme_mod( 'color_primary' );
-			}
-
-			if ( get_theme_mod( 'color_secondary' ) ) {
-				$secondary = get_theme_mod( 'color_secondary' );
-			}
+			$secondary = sanitize_hex_color( get_theme_mod( 'color_secondary' ) ) ?: $secondary;
 		}
 
 		return sprintf(
-			':root { --sc-accent: %1$s; --sc-accent-hover: %2$s; }',
+			'body.sc-catalog-theme-light, body.sc-catalog-theme-dark, body.sc-catalog-theme-auto { --sc-accent: %1$s; --sc-accent-hover: %2$s; }',
 			esc_attr( $primary ),
 			esc_attr( $secondary )
 		);

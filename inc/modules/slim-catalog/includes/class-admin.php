@@ -142,6 +142,7 @@ class Slim_Catalog_Admin {
 			'currency_symbol'   => sanitize_text_field( $input['currency_symbol'] ?? '$' ),
 			'currency_position' => in_array( $input['currency_position'] ?? 'before', array( 'before', 'after' ), true ) ? $input['currency_position'] : 'before',
 			'color_mode'        => in_array( $input['color_mode'] ?? 'light', array( 'light', 'dark', 'auto' ), true ) ? $input['color_mode'] : 'light',
+			'primary_color'     => sanitize_hex_color( $input['primary_color'] ?? '#446084' ) ?: '#446084',
 			'archive_slug'      => sanitize_title( $input['archive_slug'] ?? 'san-pham' ),
 			'single_slug'       => sanitize_title( $input['single_slug'] ?? 'san-pham' ),
 			'cta_label'         => sanitize_text_field( $input['cta_label'] ?? __( 'Contact Us Now', 'slim-catalog' ) ),
@@ -173,6 +174,13 @@ class Slim_Catalog_Admin {
 								<option value="auto" <?php selected( $settings['color_mode'], 'auto' ); ?>><?php esc_html_e( 'Follow device', 'slim-catalog' ); ?></option>
 							</select>
 							<p class="description"><?php esc_html_e( 'Applied to product sections, archives, categories, and product detail pages.', 'slim-catalog' ); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="primary_color"><?php esc_html_e( 'Màu chủ đạo sản phẩm', 'slim-catalog' ); ?></label></th>
+						<td>
+							<input type="color" name="slim_catalog_settings[primary_color]" id="primary_color" value="<?php echo esc_attr( $settings['primary_color'] ); ?>" />
+							<p class="description"><?php esc_html_e( 'Áp dụng cho nút, giá, nhãn và các điểm nhấn trong khu vực sản phẩm.', 'slim-catalog' ); ?></p>
 						</td>
 					</tr>
 					<tr>
@@ -240,7 +248,7 @@ class Slim_Catalog_Admin {
 						</td>
 					</tr>
 				</table>
-				<h2>Schema sản phẩm</h2><table class="form-table"><tr><th>Kích hoạt</th><td><label><input type="checkbox" name="slim_catalog_settings[schema_enabled]" value="1" <?php checked(!empty($settings['schema_enabled'])); ?>> Xuất Product JSON-LD trên trang chi tiết</label><p class="description">Tắt nếu plugin SEO khác đã tạo Product schema cho loại nội dung này.</p></td></tr><tr><th><label for="currency_code">Mã tiền tệ</label></th><td><input id="currency_code" name="slim_catalog_settings[currency_code]" value="<?php echo esc_attr($settings['currency_code']); ?>" maxlength="3" class="small-text" placeholder="VND"></td></tr><tr><th><label for="default_brand">Thương hiệu mặc định</label></th><td><input id="default_brand" name="slim_catalog_settings[default_brand]" value="<?php echo esc_attr($settings['default_brand']); ?>" class="regular-text"></td></tr></table>
+				<h2>Schema sản phẩm</h2><table class="form-table"><tr><th>Kích hoạt</th><td><label><input type="checkbox" name="slim_catalog_settings[schema_enabled]" value="1" data-tnstack-feature-toggle="product-schema" <?php checked(!empty($settings['schema_enabled'])); ?>> Xuất Product JSON-LD trên trang chi tiết</label><p class="description">Tắt nếu plugin SEO khác đã tạo Product schema cho loại nội dung này.</p></td></tr><tr data-tnstack-feature-panel="product-schema"><th><label for="currency_code">Mã tiền tệ</label></th><td><input id="currency_code" name="slim_catalog_settings[currency_code]" value="<?php echo esc_attr($settings['currency_code']); ?>" maxlength="3" class="small-text" placeholder="VND"></td></tr><tr data-tnstack-feature-panel="product-schema"><th><label for="default_brand">Thương hiệu mặc định</label></th><td><input id="default_brand" name="slim_catalog_settings[default_brand]" value="<?php echo esc_attr($settings['default_brand']); ?>" class="regular-text"></td></tr></table>
 
 				<?php submit_button(); ?>
 				<p class="description"><?php esc_html_e( 'After changing slugs, visit Settings → Permalinks and click Save to refresh rewrite rules.', 'slim-catalog' ); ?></p>
@@ -259,7 +267,7 @@ class Slim_Catalog_Admin {
 			Slim_Catalog_Frontend::enqueue_assets( true );
 			return;
 		}
-		if ( ! in_array( $hook, array( 'post.php', 'post-new.php' ), true ) ) {
+		if ( ! in_array( $hook, array( 'edit.php', 'edit-tags.php', 'post.php', 'post-new.php' ), true ) ) {
 			return;
 		}
 
@@ -269,8 +277,12 @@ class Slim_Catalog_Admin {
 			return;
 		}
 
-		wp_enqueue_media();
 		wp_enqueue_style( 'slim-catalog-admin', SLIM_CATALOG_URL . 'assets/css/admin.css', array(), SLIM_CATALOG_VERSION );
+		if ( in_array( $hook, array( 'edit.php', 'edit-tags.php' ), true ) ) {
+			return;
+		}
+
+		wp_enqueue_media();
 		wp_enqueue_script( 'slim-catalog-admin', SLIM_CATALOG_URL . 'assets/js/admin.js', array( 'jquery' ), SLIM_CATALOG_VERSION, true );
 		wp_enqueue_script( 'slim-catalog-variations-admin', SLIM_CATALOG_URL . 'assets/js/variations-admin.js', array( 'jquery' ), SLIM_CATALOG_VERSION, true );
 	}

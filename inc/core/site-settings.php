@@ -56,9 +56,11 @@ function tnstack_toolkit_admin_settings() {
  */
 function tnstack_toolkit_sanitize_admin_settings( $input ) {
 	$defaults = tnstack_core_default_config();
+	$current  = get_option( TNSTACK_TOOLKIT_SETTINGS_OPTION, array() );
+	$current  = is_array( $current ) ? $current : array();
 
 	$sanitized = array(
-		'profile'  => isset( $input['profile'] ) ? sanitize_key( (string) $input['profile'] ) : $defaults['profile'],
+		'profile'  => isset( $input['profile'] ) ? sanitize_key( (string) $input['profile'] ) : sanitize_key( (string) ( $current['profile'] ?? $defaults['profile'] ) ),
 		'modules'  => array(),
 		'project'  => array(),
 		'features' => array(),
@@ -76,11 +78,6 @@ function tnstack_toolkit_sanitize_admin_settings( $input ) {
 		$sanitized['features'][ $slug ] = ! empty( $input['features'][ $slug ] );
 	}
 
-	$profiles = tnstack_toolkit_get_profiles();
-	if ( ! isset( $profiles[ $sanitized['profile'] ] ) ) {
-		$sanitized['profile'] = 'standard';
-	}
-
 	return $sanitized;
 }
 
@@ -88,6 +85,7 @@ function tnstack_toolkit_sanitize_admin_settings( $input ) {
  * @param array<string, mixed> $settings Settings payload.
  */
 function tnstack_toolkit_update_admin_settings( $settings ) {
+	$popup_was_enabled = function_exists( 'tnstack_core_module_enabled' ) && tnstack_core_module_enabled( 'popup-form' );
 	$updated = tnstack_toolkit_sanitize_admin_settings( $settings );
 	update_option( TNSTACK_TOOLKIT_SETTINGS_OPTION, $updated, false );
 
@@ -95,6 +93,9 @@ function tnstack_toolkit_update_admin_settings( $settings ) {
 
 	if ( function_exists( 'tnstack_core_flush_config_cache' ) ) {
 		tnstack_core_flush_config_cache();
+	}
+	if ( $popup_was_enabled && empty( $updated['modules']['popup-form'] ) ) {
+		wp_clear_scheduled_hook( 'tnstack_popup_cleanup_leads' );
 	}
 
 	if ( ! empty( $updated['modules']['slim-catalog'] ) && ! get_option( 'slim_catalog_settings' ) ) {

@@ -3,7 +3,7 @@ Contributors: tnstack
 Tags: products, shortcodes, popup form, login, wordpress toolkit
 Requires at least: 6.0
 Requires PHP: 7.4
-Stable tag: 3.4.2
+Stable tag: 3.4.4
 License: GPLv2 or later
 
 TNStack Toolkit cung cấp phần Sản phẩm, shortcode nội dung, Popup Form và
@@ -80,6 +80,14 @@ Lỗi được cô lập ở module tương ứng. Các module còn lại tiếp
 quản trị viên nhận được thông báo để kiểm tra.
 
 == Changelog ==
+
+= 3.4.4 =
+* Thêm chọn màu chủ đạo cho khu vực sản phẩm trong trang cài đặt.
+* Tinh chỉnh card sản phẩm: ảnh vuông, nút liên hệ nhỏ và căn giữa, ẩn mô tả ngắn.
+
+= 3.4.3 =
+* Chuẩn hóa UI admin TNStack Toolkit và mặc định tắt module/tính năng mới.
+* Giữ cấu hình hiện tại khi cập nhật; bỏ Profile/Preset nhanh.
 
 = 3.4.2 =
 

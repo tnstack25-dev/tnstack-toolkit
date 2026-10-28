@@ -20,7 +20,7 @@ function tnstack_core_default_config() {
 			? TNStack_Module_Manifest::project_defaults()
 			: array(),
 		'features' => array(
-			'woocommerce' => true,
+			'woocommerce' => false,
 			'comments'    => false,
 		),
 	);
@@ -65,7 +65,6 @@ function tnstack_core_config() {
 		$config['features'] = tnstack_core_normalize_boolean_map( $admin['features'], $defaults['features'] );
 	}
 
-	$config = tnstack_core_apply_profile( $config );
 	$filtered = apply_filters( 'tnstack_core_config', $config );
 	if ( is_array( $filtered ) ) {
 		$config = $filtered;
@@ -100,67 +99,6 @@ function tnstack_core_normalize_boolean_map( $values, $defaults = array() ) {
 	}
 
 	return $normalized;
-}
-
-/**
- * Apply built-in profile presets over module/feature defaults.
- *
- * @param array<string, mixed> $config Config array.
- * @return array<string, mixed>
- */
-function tnstack_core_apply_profile( $config ) {
-	$profiles = array(
-		'blog' => array(
-			'modules' => array(
-				'pricing-grid-table' => false,
-				'slim-catalog'       => false,
-			),
-			'features' => array(
-				'woocommerce' => false,
-			),
-		),
-		'landing' => array(
-			'modules' => array(
-				'disable-comments' => true,
-			),
-			'features' => array(
-				'woocommerce' => false,
-				'comments'    => false,
-			),
-		),
-		'woocommerce' => array(
-			'features' => array(
-				'woocommerce' => true,
-			),
-		),
-		'corporate' => array(
-			'modules' => array(
-				'pricing-grid-table' => true,
-			),
-		),
-	);
-
-	$profile = $config['profile'] ?? 'standard';
-
-	if ( ! isset( $profiles[ $profile ] ) ) {
-		return $config;
-	}
-
-	$preset = $profiles[ $profile ];
-
-	if ( ! empty( $preset['modules'] ) && is_array( $preset['modules'] ) ) {
-		foreach ( $preset['modules'] as $module => $enabled ) {
-			$config['modules'][ $module ] = (bool) $enabled;
-		}
-	}
-
-	if ( ! empty( $preset['features'] ) && is_array( $preset['features'] ) ) {
-		foreach ( $preset['features'] as $feature => $enabled ) {
-			$config['features'][ $feature ] = (bool) $enabled;
-		}
-	}
-
-	return $config;
 }
 
 /**

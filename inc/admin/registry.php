@@ -10,39 +10,6 @@ defined( 'ABSPATH' ) || exit;
 /**
  * @return array<string, array<string, string>>
  */
-function tnstack_toolkit_get_profiles() {
-	return array(
-		'standard' => array(
-			'label'       => __( 'Standard', 'tnstack-toolkit' ),
-			'description' => __( 'Bật đầy đủ module cho dự án đa năng.', 'tnstack-toolkit' ),
-			'icon'        => 'admin-site-alt3',
-		),
-		'blog' => array(
-			'label'       => __( 'Blog', 'tnstack-toolkit' ),
-			'description' => __( 'Tối giản — tập trung nội dung, không shop.', 'tnstack-toolkit' ),
-			'icon'        => 'admin-post',
-		),
-		'landing' => array(
-			'label'       => __( 'Landing', 'tnstack-toolkit' ),
-			'description' => __( 'Trang đích marketing, không comment.', 'tnstack-toolkit' ),
-			'icon'        => 'welcome-view-site',
-		),
-		'woocommerce' => array(
-			'label'       => __( 'WooCommerce', 'tnstack-toolkit' ),
-			'description' => __( 'Tối ưu cho shop Flatsome + WooCommerce.', 'tnstack-toolkit' ),
-			'icon'        => 'cart',
-		),
-		'corporate' => array(
-			'label'       => __( 'Corporate', 'tnstack-toolkit' ),
-			'description' => __( 'Doanh nghiệp — bảng giá, ít slider.', 'tnstack-toolkit' ),
-			'icon'        => 'building',
-		),
-	);
-}
-
-/**
- * @return array<string, array<string, string>>
- */
 function tnstack_toolkit_get_group_meta() {
 	return array(
 		'core'         => array(

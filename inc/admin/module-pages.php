@@ -38,10 +38,7 @@ function tnstack_toolkit_register_module_pages() {
 	$parent = TNStack_Toolkit_Features_Dashboard::PAGE_SLUG;
 
 	foreach ( tnstack_toolkit_module_settings_pages() as $slug => $page ) {
-		// The update blocker is a project utility, not a normal module. Keep its
-		// configuration page registered for administrators even when the saved
-		// project flag is absent or was created by an older Toolkit version.
-		if ( 'disable-update-plugin' !== $slug && ! tnstack_core_module_enabled( $slug ) ) {
+		if ( ! tnstack_core_module_enabled( $slug ) ) {
 			continue;
 		}
 

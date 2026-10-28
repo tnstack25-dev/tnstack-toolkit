@@ -137,8 +137,8 @@ body.tnstack-login-page {
   font-size: clamp(38px, 5vw, 64px);
   line-height: 1.04;
   letter-spacing: -0.035em;
-	text-align: left;
-	text-transform: uppercase;
+  text-align: left;
+  text-transform: uppercase;
 }
 .tnstack-login-brand__content > p:last-child {
   max-width: 510px;
@@ -153,32 +153,36 @@ body.tnstack-login-page {
 }
 
 .tnstack-login-panel {
-	position: relative;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   min-width: 0;
-	min-height: 100vh;
-	padding: 56px clamp(28px, 5vw, 76px);
-	background:
-		radial-gradient(circle at 90% 8%, rgba(37, 99, 235, 0.09), transparent 30%),
-		radial-gradient(circle at 15% 92%, rgba(14, 165, 233, 0.08), transparent 28%),
-		#f6f8fc;
+  min-height: 100vh;
+  padding: 56px clamp(28px, 5vw, 76px);
+  background:
+    radial-gradient(circle at 90% 8%, rgba(37, 99, 235, 0.09), transparent 30%),
+    radial-gradient(
+      circle at 15% 92%,
+      rgba(14, 165, 233, 0.08),
+      transparent 28%
+    ),
+    #f6f8fc;
 }
 
 .tnstack-login-panel__inner {
-	position: relative;
-	z-index: 1;
-	width: min(100%, 490px);
-	padding: 38px 40px 34px;
-	border: 1px solid rgba(203, 213, 225, 0.78);
-	border-radius: 24px;
-	background: rgba(255, 255, 255, 0.96);
-	box-shadow: 0 28px 70px rgba(15, 23, 42, 0.12);
-	backdrop-filter: blur(12px);
+  position: relative;
+  z-index: 1;
+  width: min(100%, 490px);
+  padding: 38px 40px 34px;
+  border: 1px solid rgba(203, 213, 225, 0.78);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 28px 70px rgba(15, 23, 42, 0.12);
+  backdrop-filter: blur(12px);
 }
 .tnstack-login-panel__heading {
-	margin-bottom: 30px;
+  margin-bottom: 30px;
 }
 .tnstack-login-panel__heading > p {
   margin: 0 0 11px;
@@ -190,7 +194,7 @@ body.tnstack-login-page {
 .tnstack-login-panel__heading h2 {
   margin: 0 0 10px;
   color: #172033;
-	font-size: 30px;
+  font-size: 30px;
   line-height: 1.2;
   letter-spacing: -0.025em;
 }
@@ -210,35 +214,35 @@ body.tnstack-login-page {
 }
 
 .tnstack-login-page #login form p {
-	margin: 0;
+  margin: 0;
 }
 
 .tnstack-login-page #login form .forgetmenot {
-	display: flex;
-	align-items: center;
-	min-height: 24px;
+  display: flex;
+  align-items: center;
+  min-height: 24px;
   float: none;
-	margin: 1px 0 20px;
+  margin: 1px 0 20px;
 }
 
 .tnstack-login-page #login form .forgetmenot label {
-	display: inline-flex;
-	align-items: center;
-	gap: 8px;
-	font-weight: 500;
-	cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  cursor: pointer;
 }
 
 .tnstack-login-page #login form .forgetmenot input[type="checkbox"] {
-	width: 17px;
-	height: 17px;
-	margin: 0;
-	border-color: #cbd5e1;
-	border-radius: 5px;
+  width: 17px;
+  height: 17px;
+  margin: 0;
+  border-color: #cbd5e1;
+  border-radius: 5px;
 }
 
 .tnstack-login-page label {
-	display: block;
+  display: block;
   color: #334155;
   font-size: 13px;
   font-weight: 650;
@@ -247,9 +251,9 @@ body.tnstack-login-page {
 .tnstack-login-page input[type="text"],
 .tnstack-login-page input[type="email"],
 .tnstack-login-page input[type="password"] {
-	display: block;
-	width: 100%;
-	max-width: none;
+  display: block;
+  width: 100%;
+  max-width: none;
   min-height: 50px;
   margin: 7px 0 19px;
   padding: 10px 14px;
@@ -295,15 +299,15 @@ body.tnstack-login-page {
 }
 
 .tnstack-login-page #login p.submit {
-	display: block;
-	clear: both;
-	margin: 0;
+  display: block;
+  clear: both;
+  margin: 0;
 }
 
 .tnstack-login-page.wp-core-ui #login .button-primary {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   float: none;
   width: 100%;
   min-height: 50px;
@@ -332,8 +336,8 @@ body.tnstack-login-page {
 }
 .tnstack-login-page #nav,
 .tnstack-login-page #backtoblog {
-	width: 100%;
-	box-sizing: border-box;
+  width: 100%;
+  box-sizing: border-box;
   padding: 0;
   text-align: center;
 }
@@ -356,8 +360,8 @@ body.tnstack-login-page {
 .tnstack-login-page .message,
 .tnstack-login-page #login_error,
 .tnstack-login-page .success {
-	box-sizing: border-box;
-	width: 100%;
+  box-sizing: border-box;
+  width: 100%;
   margin: 0 0 22px;
   padding: 13px 15px;
   border: 0;
@@ -376,46 +380,46 @@ body.tnstack-login-page {
   background: #f0fdf4;
 }
 .tnstack-login-page .language-switcher {
-	position: static;
-	width: 100%;
-	margin: 24px 0 0;
-	padding: 20px 0 0;
-	border-top: 1px solid #edf1f6;
-	text-align: center;
+  position: static;
+  width: 100%;
+  margin: 24px 0 0;
+  padding: 20px 0 0;
+  border-top: 1px solid #edf1f6;
+  text-align: center;
 }
 
 .tnstack-login-page .language-switcher form {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	gap: 8px;
-	margin: 0;
-	padding: 0;
-	border: 0;
-	background: transparent;
-	box-shadow: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .tnstack-login-page .language-switcher label {
-	display: inline-flex;
-	align-items: center;
-	gap: 4px;
-	color: #64748b;
-	font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #64748b;
+  font-weight: 500;
 }
 
 .tnstack-login-page .language-switcher select {
-	min-height: 36px;
-	margin: 0;
-	border-color: #d7dee9;
-	border-radius: 8px;
+  min-height: 36px;
+  margin: 0;
+  border-color: #d7dee9;
+  border-radius: 8px;
 }
 
 .tnstack-login-page .language-switcher .button {
-	min-height: 36px;
-	border-color: #d7dee9;
-	border-radius: 8px;
-	background: #fff;
+  min-height: 36px;
+  border-color: #d7dee9;
+  border-radius: 8px;
+  background: #fff;
 }
 .tnstack-login-page .privacy-policy-page-link {
   margin: 18px 0 0;
@@ -457,10 +461,10 @@ body.tnstack-login-page {
     min-height: 65vh;
     padding: 38px 24px 70px;
   }
-	.tnstack-login-panel__inner {
-		padding: 34px;
-		border-radius: 20px;
-	}
+  .tnstack-login-panel__inner {
+    padding: 34px;
+    border-radius: 20px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -479,15 +483,17 @@ body.tnstack-login-page {
   }
   .tnstack-login-panel {
     align-items: flex-start;
-		padding: 26px 14px 50px;
+    padding: 26px 14px 50px;
   }
-	.tnstack-login-panel__inner {
-		padding: 28px 22px 24px;
-		border-radius: 18px;
-		box-shadow: 0 18px 48px rgba(15, 23, 42, 0.1);
-	}
+  .tnstack-login-panel__inner {
+    padding: 28px 22px 24px;
+    border-radius: 18px;
+    box-shadow: 0 18px 48px rgba(15, 23, 42, 0.1);
+  }
   .tnstack-login-panel__heading h2 {
     font-size: 27px;
   }
-	.tnstack-login-page .language-switcher form { flex-wrap: wrap; }
+  .tnstack-login-page .language-switcher form {
+    flex-wrap: wrap;
+  }
 }

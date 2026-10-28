@@ -70,6 +70,7 @@ final class TNStack_Plugin {
 
 		$this->booted = true;
 		$this->load_foundation();
+		TNStack_Plugin_Lifecycle::migrate_legacy_defaults();
 		TNStack_Account_Permissions::boot();
 		TNStack_GitHub_Updater::boot();
 		add_action( 'init', array( $this, 'load_textdomain' ), -10000 );

@@ -44,9 +44,9 @@ function tnstack_maintenance_render_admin() {
 	<div class="wrap"><h1><?php esc_html_e( 'Maintenance Mode', 'tnstack-toolkit' ); ?></h1>
 	<form method="post"><?php wp_nonce_field( 'tnstack_maint' ); ?>
 	<table class="form-table">
-		<tr><th><?php esc_html_e( 'Bật', 'tnstack-toolkit' ); ?></th><td><label><input type="checkbox" name="enabled" value="1" <?php checked( $s['enabled'] ); ?> /> <?php esc_html_e( 'Kích hoạt chế độ bảo trì', 'tnstack-toolkit' ); ?></label></td></tr>
-		<tr><th><?php esc_html_e( 'Tiêu đề', 'tnstack-toolkit' ); ?></th><td><input name="title" class="regular-text" value="<?php echo esc_attr( $s['title'] ); ?>" /></td></tr>
-		<tr><th><?php esc_html_e( 'Nội dung', 'tnstack-toolkit' ); ?></th><td><textarea name="message" rows="4" class="large-text"><?php echo esc_textarea( $s['message'] ); ?></textarea></td></tr>
+		<tr><th><?php esc_html_e( 'Bật', 'tnstack-toolkit' ); ?></th><td><label><input type="checkbox" name="enabled" value="1" data-tnstack-feature-toggle="maintenance-mode" <?php checked( $s['enabled'] ); ?> /> <?php esc_html_e( 'Kích hoạt chế độ bảo trì', 'tnstack-toolkit' ); ?></label></td></tr>
+		<tr data-tnstack-feature-panel="maintenance-mode"><th><?php esc_html_e( 'Tiêu đề', 'tnstack-toolkit' ); ?></th><td><input name="title" class="regular-text" value="<?php echo esc_attr( $s['title'] ); ?>" /></td></tr>
+		<tr data-tnstack-feature-panel="maintenance-mode"><th><?php esc_html_e( 'Nội dung', 'tnstack-toolkit' ); ?></th><td><textarea name="message" rows="4" class="large-text"><?php echo esc_textarea( $s['message'] ); ?></textarea></td></tr>
 	</table><?php submit_button( __( 'Lưu', 'tnstack-toolkit' ), 'primary', 'tnstack_maint_save' ); ?></form></div>
 	<?php
 }

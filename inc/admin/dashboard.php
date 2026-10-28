@@ -23,6 +23,12 @@ final class TNStack_Toolkit_Features_Dashboard {
 	private static function is_toolkit_screen( $hook = '' ) {
 		$page = sanitize_key( wp_unslash( $_GET['page'] ?? '' ) );
 		$post_type = sanitize_key( wp_unslash( $_GET['post_type'] ?? '' ) );
+		if ( function_exists( 'get_current_screen' ) && function_exists( 'tnstack_core_module_enabled' ) ) {
+			$screen = get_current_screen();
+			if ( $screen && 'dashboard' === $screen->id && tnstack_core_module_enabled( 'custom-admin-dashboard' ) ) {
+				return true;
+			}
+		}
 		if ( in_array( $post_type, array( 'slim_product', 'tnstack_lead', 'tnstack_form' ), true ) ) return true;
 		if ( function_exists( 'get_current_screen' ) ) { $screen=get_current_screen(); if ( $screen && in_array( $screen->post_type, array( 'slim_product','tnstack_lead','tnstack_form' ), true ) ) return true; }
 		if ( 0 === strpos( $page, 'tnstack' ) || 0 === strpos( $page, 'slim-catalog' ) ) return true;
@@ -42,6 +48,8 @@ final class TNStack_Toolkit_Features_Dashboard {
 		}
 		$suite_path = tnstack_core_path( 'assets/css/toolkit-suite-admin.css' );
 		wp_enqueue_style( 'tnstack-toolkit-suite-admin', tnstack_core_uri( 'assets/css/toolkit-suite-admin.css' ), array(), tnstack_core_asset_version( $suite_path ) );
+		$toggle_path = tnstack_core_path( 'assets/js/admin-feature-toggles.js' );
+		wp_enqueue_script( 'tnstack-admin-feature-toggles', tnstack_core_uri( 'assets/js/admin-feature-toggles.js' ), array(), tnstack_core_asset_version( $toggle_path ), true );
 
 		if ( 'toplevel_page_' . self::PAGE_SLUG !== $hook ) return;
 
@@ -174,7 +182,6 @@ final class TNStack_Toolkit_Features_Dashboard {
 		}
 
 		$settings   = tnstack_toolkit_has_admin_settings() ? tnstack_toolkit_admin_settings() : tnstack_core_config();
-		$profiles   = tnstack_toolkit_get_profiles();
 		$groups     = tnstack_toolkit_get_module_groups();
 		$group_meta = tnstack_toolkit_get_group_meta();
 		$features = tnstack_toolkit_get_feature_items();
@@ -199,10 +206,6 @@ final class TNStack_Toolkit_Features_Dashboard {
 						<span class="ttk-hero-stat__value" data-ttk-total><?php echo esc_html( (string) $counts['total'] ); ?></span>
 						<span class="ttk-hero-stat__label"><?php esc_html_e( 'Tổng module', 'tnstack-toolkit' ); ?></span>
 					</div>
-					<div class="ttk-hero-stat">
-						<span class="ttk-hero-stat__value"><?php echo esc_html( ucfirst( $settings['profile'] ) ); ?></span>
-						<span class="ttk-hero-stat__label"><?php esc_html_e( 'Profile', 'tnstack-toolkit' ); ?></span>
-					</div>
 				</div>
 			</header>
 
@@ -223,11 +226,7 @@ final class TNStack_Toolkit_Features_Dashboard {
 							<input type="search" class="ttk-search__input" placeholder="<?php esc_attr_e( 'Tìm module...', 'tnstack-toolkit' ); ?>" autocomplete="off">
 						</div>
 						<nav class="ttk-nav" aria-label="<?php esc_attr_e( 'Nhóm tính năng', 'tnstack-toolkit' ); ?>">
-							<button type="button" class="ttk-nav__item is-active" data-target="ttk-group-profile" data-group="profile">
-								<span class="ttk-nav__dot" style="background:#4f46e5;"></span>
-								<?php esc_html_e( 'Profile', 'tnstack-toolkit' ); ?>
-							</button>
-							<?php foreach ( $groups as $group_key => $items ) :
+							<?php $first_group_key = key( $groups ); foreach ( $groups as $group_key => $items ) :
 								$meta  = $group_meta[ $group_key ] ?? array();
 								$color = $meta['color'] ?? '#64748b';
 								$active_in_group = 0;
@@ -239,7 +238,7 @@ final class TNStack_Toolkit_Features_Dashboard {
 									}
 								}
 								?>
-								<button type="button" class="ttk-nav__item" data-target="ttk-group-<?php echo esc_attr( $group_key ); ?>" data-group="<?php echo esc_attr( $group_key ); ?>">
+								<button type="button" class="ttk-nav__item<?php echo $group_key === $first_group_key ? ' is-active' : ''; ?>" data-target="ttk-group-<?php echo esc_attr( $group_key ); ?>" data-group="<?php echo esc_attr( $group_key ); ?>">
 									<span class="ttk-nav__dot" style="background:<?php echo esc_attr( $color ); ?>;"></span>
 									<?php echo esc_html( $meta['label'] ?? $group_key ); ?>
 									<span class="ttk-nav__count"><?php echo esc_html( (string) $active_in_group ); ?></span>
@@ -305,30 +304,6 @@ final class TNStack_Toolkit_Features_Dashboard {
 					</aside>
 
 					<div class="ttk-main">
-						<section class="ttk-section" id="ttk-group-profile">
-							<div class="ttk-section__header">
-								<span class="ttk-section__icon" style="background:#4f46e5;">
-									<span class="dashicons dashicons-admin-settings"></span>
-								</span>
-								<div>
-									<h2 class="ttk-section__title"><?php esc_html_e( 'Profile dự án', 'tnstack-toolkit' ); ?></h2>
-									<p class="ttk-section__desc"><?php esc_html_e( 'Preset nhanh — tự động điều chỉnh module mặc định khi lưu.', 'tnstack-toolkit' ); ?></p>
-								</div>
-							</div>
-							<div class="ttk-profiles">
-								<?php foreach ( $profiles as $slug => $profile ) : ?>
-									<label class="ttk-profile">
-										<input type="radio" name="toolkit[profile]" value="<?php echo esc_attr( $slug ); ?>" <?php checked( $settings['profile'], $slug ); ?> class="ttk-profile__input">
-										<span class="ttk-profile__card">
-											<span class="ttk-profile__icon"><span class="dashicons dashicons-<?php echo esc_attr( $profile['icon'] ); ?>"></span></span>
-											<span class="ttk-profile__label"><?php echo esc_html( $profile['label'] ); ?></span>
-											<span class="ttk-profile__desc"><?php echo esc_html( $profile['description'] ); ?></span>
-										</span>
-									</label>
-								<?php endforeach; ?>
-							</div>
-						</section>
-
 						<?php foreach ( $groups as $group_key => $items ) :
 							$meta  = $group_meta[ $group_key ] ?? array();
 							$color = $meta['color'] ?? '#64748b';
